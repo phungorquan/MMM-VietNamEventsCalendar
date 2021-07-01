@@ -1,5 +1,5 @@
-# MODULE: VietNamCalendar
-![image](MMM-VietnamCalendar.png)
+# MODULE: VietNamEventsCalendar
+![image](MMM-VietNamEventsCalendar.png)
 
 - This module will display your personal google calendar and VietNam events or your events
 - We can edit VietNam events in VietNamCal.js
@@ -7,7 +7,7 @@
 # CONFIG:
 ```
 {
-    "module": "MMM-VietnamCalendar",
+    "module": "MMM-VietNamEventsCalendar",
     "position": "top_left",
     "config": {
         "maximumEntries": 10,

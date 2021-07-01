@@ -14,7 +14,7 @@ var ns_VNCal = {
     currentCalIndex: 0, // This variable will save switch counter
     getInterval: 0
 };
-Module.register("MMM-VietnamCalendar", {
+Module.register("MMM-VietNamEventsCalendar", {
     defaults: {
         maximumEntries: 10, // Total Maximum Entries
         maximumNumberOfDays: 365,
@@ -50,7 +50,7 @@ Module.register("MMM-VietnamCalendar", {
 
     // Define required css.
     getStyles: function() {
-        return ["MMM-VietnamCalendar.css", "font-awesome.css"];
+        return ["MMM-VietNamEventsCalendar.css", "font-awesome.css"];
     },
     // Define required scripts.
     getScripts: function() {
@@ -194,10 +194,11 @@ Module.register("MMM-VietnamCalendar", {
                 var titleWrapper = document.createElement("td");
                 titleWrapper.innerHTML = this.titleTransform(event.title);
                 titleWrapper.style.fontFamily = "Roboto,bold";
-
-                // Time
-                var timeWrapper = document.createElement("td");
-                timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
+                titleWrapper.className = "time bold ";
+        // Time
+        var timeWrapper = document.createElement("td");
+        var timeStr = "";
+        timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
                 eventWrapper.appendChild(titleWrapper);
                 // Define second, minute, hour, and day variables
                 var now = new Date();
@@ -207,11 +208,11 @@ Module.register("MMM-VietnamCalendar", {
                 var oneDay = 86400000; // oneHour * 24
                 // If event occur all day
                 if (event.fullDayEvent) {
-                    timeWrapper.innerHTML = moment(event.startDate, "x").format('[Hôm nay]');
-                    timeWrapper.innerHTML += "<br> Cả ngày đến " + moment(event.endDate - oneDay, "x").format(this.config.dateEndFormat);
+                    timeStr = moment(event.startDate, "x").format('[Hôm nay]');
+                    timeStr += "<br> Cả ngày đến " + moment(event.endDate - oneDay, "x").format(this.config.dateEndFormat);
                 } else {
                     if (event.startDate >= new Date()) {
-                        timeWrapper.innerHTML = moment(event.startDate, "x").calendar();
+                        timeStr = moment(event.startDate, "x").calendar();
                         // Check < 5' to pop-up alert
                         if ((event.startDate - now) < (5 * oneMinute)) {
                             for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
@@ -226,20 +227,21 @@ Module.register("MMM-VietnamCalendar", {
                             }
                         }
                     } else {
-                        timeWrapper.innerHTML = this.translate("RUNNING") + moment(event.endDate, "x").fromNow(true)
-                        timeWrapper.innerHTML += "<br>" + moment(event.startDate, "x").format(this.config.dateEndFormat);
+                        timeStr = this.translate("RUNNING") + moment(event.endDate, "x").fromNow(true)
+                        timeStr += "<br>" + moment(event.startDate, "x").format(this.config.dateEndFormat);
                     }
 
                     // If startDate > a week -> display Date
                     if (moment(event.startDate,"x")._i - Date.now() > oneDay * 7) {
-                        timeWrapper.innerHTML += "<br>" + moment(event.startDate, "x").format("LT");
+                        timeStr += "<br>" + moment(event.startDate, "x").format("LT");
                     }
                     // Display endTime
                     if(this.config.displayEndTime)
                     {
-                        timeWrapper.innerHTML += " - " + moment(event.endDate, "x").format(this.config.dateEndFormat);
+                        timeStr += " - " + moment(event.endDate, "x").format(this.config.dateEndFormat);
                     }
                 }
+                timeWrapper.innerHTML = timeStr;
                 timeWrapper.className = "time bold ";
                 eventWrapper.appendChild(timeWrapper);
                 wrapper.appendChild(eventWrapper);
@@ -253,11 +255,12 @@ Module.register("MMM-VietnamCalendar", {
                     locationRow.className = "normal xsmall";
                     locationRow.style.fontFamily = "Courier New, monospace";
                     locationRow.style.fontStyle = "italic";
+                    locationRow.style.textAlign = "left";
                     locationRow.style.letterSpacing = "0.5px";
                     var descCell = document.createElement("td");
                     descCell.className = "location";
-                    descCell.colSpan = "2";
-                    descCell.innerHTML = myLocation;
+                    descCell.colSpan = "1";
+                    descCell.innerHTML = this.titleTransform(myLocation);
                     locationRow.appendChild(descCell);
                     wrapper.appendChild(locationRow);
                     // Display a line to separate peronalCal and lunarCal
