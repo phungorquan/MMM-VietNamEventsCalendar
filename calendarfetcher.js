@@ -5,10 +5,10 @@
  * MIT Licensed.
  */
 
-var ical = require("./vendor/ical.js");
+var ical = require("node-ical");
 var moment = require("moment");
 
-var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntries, maximumNumberOfDays, auth, includePastEvents) {
+var CalendarFetcher = function(url, reloadInterval, maximumEntries, maximumNumberOfDays) {
 	var self = this;
 
 	var reloadTimer = null;
@@ -33,26 +33,6 @@ var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntri
 			gzip: true
 		};
 
-		if (auth) {
-			if(auth.method === "bearer"){
-				opts.auth = {
-					bearer: auth.pass
-				};
-
-			} else {
-				opts.auth = {
-					user: auth.user,
-					pass: auth.pass
-				};
-
-				if(auth.method === "digest"){
-					opts.auth.sendImmediately = false;
-				} else {
-					opts.auth.sendImmediately = true;
-				}
-			}
-		}
-
 		ical.fromURL(url, opts, function(err, data) {
 			if (err) {
 				fetchFailedCallback(self, err);
@@ -76,10 +56,6 @@ var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntri
 				var today = moment().startOf("day").toDate();
 				var future = moment().startOf("day").add(maximumNumberOfDays, "days").subtract(1,"seconds").toDate(); // Subtract 1 second so that events that start on the middle of the night will not repeat.
 				var past = today;
-
-				if (includePastEvents) {
-					past = moment().startOf("day").subtract(maximumNumberOfDays, "days").toDate();
-				}
 
 				// FIXME:
 				// Ugly fix to solve the facebook birthday issue.
@@ -116,57 +92,6 @@ var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntri
 					}
 
 					var title = getTitleFromEvent(event);
-
-					var excluded = false,
-						dateFilter = null;
-
-					for (var f in excludedEvents) {
-						var filter = excludedEvents[f],
-							testTitle = title.toLowerCase(),
-							until = null,
-							useRegex = false,
-							regexFlags = "g";
-
-						if (filter instanceof Object) {
-							if (typeof filter.until !== "undefined") {
-								until = filter.until;
-							}
-
-							if (typeof filter.regex !== "undefined") {
-								useRegex = filter.regex;
-							}
-
-							// If additional advanced filtering is added in, this section
-							// must remain last as we overwrite the filter object with the
-							// filterBy string
-							if (filter.caseSensitive) {
-								filter = filter.filterBy;
-								testTitle = title;
-							} else if (useRegex) {
-								filter = filter.filterBy;
-								testTitle = title;
-								regexFlags += "i";
-							} else {
-								filter = filter.filterBy.toLowerCase();
-							}
-						} else {
-							filter = filter.toLowerCase();
-						}
-
-						if (testTitleByFilter(testTitle, filter, useRegex, regexFlags)) {
-							if (until) {
-								dateFilter = until;
-							} else {
-								excluded = true;
-							}
-							break;
-						}
-					}
-
-					if (excluded) {
-						continue;
-					}
-
 					var location = event.location || false;
 					var geo = event.geo || false;
 					var description = event.description || false;
@@ -262,7 +187,7 @@ var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntri
 								showRecurrence = false;
 							}
 
-							if (timeFilterApplies(now, endDate, dateFilter)) {
+							if (timeFilterApplies(now, endDate, false)) {
 								showRecurrence = false;
 							}
 
@@ -287,21 +212,15 @@ var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntri
 						// Single event.
 						var fullDayEvent = (isFacebookBirthday) ? true : isFullDayEvent(event);
 
-						if (includePastEvents) {
-							if (endDate < past) {
-								//console.log("Past event is too far in the past.  So skip: " + title);
-								continue;
-							}
-						} else {
-							if (!fullDayEvent && endDate < new Date()) {
-								//console.log("It's not a fullday event, and it is in the past. So skip: " + title);
-								continue;
-							}
 
-							if (fullDayEvent && endDate <= today) {
-								//console.log("It's a fullday event, and it is before today. So skip: " + title);
-								continue;
-							}
+						if (!fullDayEvent && endDate < new Date()) {
+							//console.log("It's not a fullday event, and it is in the past. So skip: " + title);
+							continue;
+						}
+
+						if (fullDayEvent && endDate <= today) {
+							//console.log("It's a fullday event, and it is before today. So skip: " + title);
+							continue;
 						}
 
 						if (startDate > future) {
@@ -309,7 +228,7 @@ var CalendarFetcher = function(url, reloadInterval, excludedEvents, maximumEntri
 							continue;
 						}
 
-						if (timeFilterApplies(now, endDate, dateFilter)) {
+						if (timeFilterApplies(now, endDate, false)) {
 							continue;
 						}
 

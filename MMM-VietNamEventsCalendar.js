@@ -25,7 +25,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         fetchInterval: 1 * 60 * 1000, // Update every 1 minutes.
         animationSpeed: 500,
         displayButton: true, // Display button to switch between calendars
-        displayEndTime: false,
+        displayEndTime: true,
         displayLunarDate: false,
         displayPersonalEvents: true,
         dateEndFormat: "LT(DD/MM)",
@@ -117,17 +117,13 @@ Module.register("MMM-VietNamEventsCalendar", {
         for (var c in this.config.calendars) {
             var calendar = this.config.calendars[c];
             calendar.url = calendar.url.replace("webcal://", "http://");
-            var calendarConfig = {
-                maximumEntries: calendar.maximumEntries,
-                maximumNumberOfDays: calendar.maximumNumberOfDays,
-            };
-            this.addCalendar(calendar.url, calendar.auth, calendarConfig);
+            this.addCalendar(calendar.url);
             // Trigger ADD_CALENDAR every fetchInterval to make sure there is always a calendar
             // fetcher running on the server side.
             var self = this;
             clearInterval(ns_VNCal.getInterval);
             ns_VNCal.getInterval = setInterval(function() {
-                self.addCalendar(calendar.url, calendar.auth, calendarConfig);
+                self.addCalendar(calendar.url);
                 self.switchCalendar("All"); // Switch to first calendar (All calendar will be displayed)
                 ns_VNCal.titleArr = [];
             }, self.config.fetchInterval);
@@ -495,21 +491,21 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         return false;
     },
-    /* createEventList(url)
+
+    /**
      * Requests node helper to add calendar url.
      *
-     * argument url string - Url to add.
+     * @param {string} url, Url of google calendar
      */
-    addCalendar: function(url, auth, calendarConfig) {
+    addCalendar: function(url) {
         this.sendSocketNotification("ADD_CALENDAR", {
             url: url,
-            maximumEntries: calendarConfig.maximumEntries || this.config.maximumEntries,
-            maximumNumberOfDays: calendarConfig.maximumNumberOfDays || this.config.maximumNumberOfDays,
             fetchInterval: this.config.fetchInterval,
-            titleClass: calendarConfig.titleClass,
-            timeClass: calendarConfig.timeClass,
+            maximumEntries: this.config.maximumEntries,
+            maximumNumberOfDays: this.config.maximumNumberOfDays
         });
     },
+
     /**
      * Shortens a string if it's longer than maxLength and add a ellipsis to the end
      *
@@ -557,14 +553,13 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
         }
     },
-    /* titleTransform(title)
+
+    /**
      * Transforms the title of an event for usage.
      * Replaces parts of the text as defined in config.titleReplace.
-     * Shortens title based on config.maxTitleLength and config.wrapEvents
      *
-     * argument title string - The title to transform.
-     *
-     * return string - The transformed title.
+     * @param {string} title, Title will be transformed
+     * @returns {string} The transformed title.
      */
     titleTransform: function(title) {
         title = this.shorten(title, this.config.maxTitleLength, this.config.wrapEvents, this.config.maxTitleLines);
