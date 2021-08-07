@@ -26,7 +26,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         animationSpeed: 500,
         displayButton: true, // Display button to switch between calendars
         displayEndTime: true,
-        displayLunarDate: false,
+        displayLunarDate: true,
         displayPersonalEvents: true,
         dateEndFormat: "LT(DD/MM)",
         defaultColor: "White",
@@ -62,12 +62,11 @@ Module.register("MMM-VietNamEventsCalendar", {
         // Therefore we can just return false. Otherwise we should have returned a dictionary.
         // If you're trying to build your own module including translations, check out the documentation.
         if (config.language == "vi") return {
-            vi: "../../../translations/vi.json" // Vietnamese 
+            vi: "translations/vi.json" // Vietnamese 
         }
         else return false;
     },
     start: function() {
-
         // Add personal events into array and also sort INC
         if(this.config.displayPersonalEvents)
         {
@@ -277,7 +276,7 @@ Module.register("MMM-VietNamEventsCalendar", {
             for (var i = 0; i < ns_VNCal.titleArr.length; i++) {
                 combineEventName += ns_VNCal.titleArr[i] + "<br>";
             }
-            var audio = new Audio('/modules/MyExtraResources/Alarm.mp3');
+            var audio = new Audio('modules/MMM-VietNamEventsCalendar/resources/Alarm.mp3');
             audio.play();
             this.sendNotification("SHOW_ALERT", {
                 type: "alert",
@@ -436,6 +435,14 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
         }
     },
+
+
+/*
+***********************************************
+** SOURCE CODE BELOW FROM DEFAULT CALENDAR   **
+***********************************************
+*/
+
     /* hasCalendarURL(url)
      * Check if this config contains the calendar url.
      *

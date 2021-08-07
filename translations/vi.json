@@ -1,0 +1,18 @@
+{
+	"LOADING": " Đang tải lịch &hellip;",
+	"TODAY": "Hôm nay",
+	"TOMORROW": "Ngày mai",
+	"DAYAFTERTOMORROW": "Ngày mốt",
+	"RUNNING": "Đang diễn ra, còn ",
+	"EMPTYPERSONALCALENDAR": "Chưa có sự kiện cá nhân nào",
+	"EMPTY": "Chưa có sự kiện nào",
+	"WEEK": "Tuần {weekNumber}",
+	"SWITCH CALENDARS" : "ĐỔI LỊCH KHÁC",
+	"No location" : "Chưa có địa điểm",
+	"ALL EVENTS ARE COMING" : "CÁC SỰ KIỆN",
+	"MY EVENTS" : "CÁC SỰ KIỆN SẮP DIỄN RA CỦA TÔI",
+	"EVENT OF - " : "SỰ KIỆN CỦA ",
+	"LUNAR CALENDAR": "CÁC NGÀY LỄ TRONG THÁNG",
+	"ERROR DATABASE": "LỖI - VUI LÒNG TẢI LẠI HỆ THỐNG"
+}
+
