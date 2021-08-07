@@ -3,8 +3,7 @@
  * Author: Anh Quan Tong 
  * Youtube: Anh Quan Tong
  * Github: phungorquan
-*/
-
+ */
 // namespace VN carlendar
 var ns_VNCal = {
     numOfUrls: 0, // numOfUrls from "config.js"
@@ -39,22 +38,19 @@ Module.register("MMM-VietNamEventsCalendar", {
             color: "",
             name: ""
         }],
-        personalDateEvent:[
-            {
-                day: 7,
-                month: 7,
-                title: "- Sinh nhật Quân",
-            }
-        ]
+        personalDateEvent: [{
+            day: 7,
+            month: 7,
+            title: "- Sinh nhật Quân",
+        }]
     },
-
     // Define required css.
     getStyles: function() {
         return ["MMM-VietNamEventsCalendar.css", "font-awesome.css"];
     },
     // Define required scripts.
     getScripts: function() {
-        return ["moment.js" ,"VietNamCal.js"];
+        return ["moment.js", "VietNamCal.js"];
     },
     // Define required translations.
     getTranslations: function() {
@@ -66,36 +62,60 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         else return false;
     },
+    /**
+     * Return title to display
+     *
+     * @return {string} - Title will be displayed
+     */
+    getHeader: function() {
+        var result = "";
+        if (ns_VNCal.currentCalIndex == 0) {
+            result = this.translate("ALL EVENTS ARE COMING");
+        } else {
+            if (this.config.displayLunarEvents && ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1) {
+                result = this.translate("LUNAR CALENDAR");
+            }
+            // Display title at screen which have correspondingly google calendars 
+            else {
+                var myAvailableElement = ns_VNCal.currentCalIndex - 1; // We need to minus by 1 when using with arr[]
+                // If user has input field "name"
+                if (this.config.calendars[myAvailableElement].hasOwnProperty("name")) {
+                    result = this.config.calendars[myAvailableElement].name;
+                } else {
+                    // E.g: https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics
+                    // -> anhquantong77
+                    var str = ns_VNCal.arrUrls[myAvailableElement];
+                    var pattern = /ical\/[^%]*/g;
+                    var getGmailAccount = str.match(pattern);
+                    result = this.translate("EVENT OF - ") + getGmailAccount;
+                }
+            }
+        }
+        return result;
+    },
     start: function() {
         // Add personal events into array and also sort INC
-        if(this.config.displayPersonalEvents)
-        {
+        if (this.config.displayPersonalEvents) {
             var getPersonalEventsArr = this.config.personalDateEvent;
-            if(getPersonalEventsArr.length > 0)
-            {
+            if (getPersonalEventsArr.length > 0) {
                 // Check whether events were added to array or not, because it will be overlaped after requested interval time
-                for(index in getPersonalEventsArr)
-                {
+                for (index in getPersonalEventsArr) {
                     var addDayDigit = ("0" + getPersonalEventsArr[index].day).slice(-2);
                     var addMonthDigit = ("0" + getPersonalEventsArr[index].month).slice(-2);
                     var existFlag = false;
-                    for(element in DL[getPersonalEventsArr[index].month - 1])
-                    {
+                    for (element in DL[getPersonalEventsArr[index].month - 1]) {
                         var strCombine = addDayDigit + "/" + addMonthDigit + getPersonalEventsArr[index].title;
-                        if(DL[getPersonalEventsArr[index].month - 1][element] == strCombine)
-                        {
+                        if (DL[getPersonalEventsArr[index].month - 1][element] == strCombine) {
                             existFlag = true;
                             break;
                         }
                     }
-                    if(!existFlag)
-                    {
-                        DL[getPersonalEventsArr[index].month - 1] = sortDayINC(getPersonalEventsArr[index].day,getPersonalEventsArr[index].month,getPersonalEventsArr[index].title);
+                    if (!existFlag) {
+                        DL[getPersonalEventsArr[index].month - 1] = sortDayINC(getPersonalEventsArr[index].day, getPersonalEventsArr[index].month, getPersonalEventsArr[index].title);
                     }
                 }
             }
         }
-
         if (ns_VNCal.numOfUrls == 0) { // This condition will avoid do too much time when re-invoke start())
             Log.log("Starting module: " + this.name);
             // Set locale to setup time format environment.
@@ -150,7 +170,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         } else if (notification === "INCORRECT_URL") {
             // Check whether myUrl is DUMMY(self-defined) or Wrong(wrong url input)
             if (payload.url != "DUMMY HIDEN") {
-                Log.error("Calendar Error. Incorrect url: " + payload.url);
+                if (ns_VNCal.numOfUrls > 0 && this.config.calendars[0].url != "") Log.error("Calendar Error. Incorrect url: " + payload.url);
             }
         }
         this.updateDom(this.config.animationSpeed);
@@ -164,8 +184,8 @@ Module.register("MMM-VietNamEventsCalendar", {
                 wrapper.innerHTML = this.translate("EMPTYPERSONALCALENDAR") + "<br>";
             } else {
                 // Only show loading when there is not Lunar Calendars
-                if (ns_VNCal.currentCalIndex != this.config.calendars.length + 1) {
-                    wrapper.innerHTML = this.translate("LOADING") + "<br>";
+                if (ns_VNCal.numOfUrls > 0) {
+                    if (ns_VNCal.currentCalIndex != this.config.calendars.length + 1 && ns_VNCal.currentCalIndex != 0) wrapper.innerHTML = this.translate("LOADING") + "<br>";
                 }
             }
             wrapper.className = this.config.tableClass + " dimmed";
@@ -190,10 +210,10 @@ Module.register("MMM-VietNamEventsCalendar", {
                 titleWrapper.innerHTML = this.titleTransform(event.title);
                 titleWrapper.style.fontFamily = "Roboto,bold";
                 titleWrapper.className = "time bold ";
-        // Time
-        var timeWrapper = document.createElement("td");
-        var timeStr = "";
-        timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
+                // Time
+                var timeWrapper = document.createElement("td");
+                var timeStr = "";
+                timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
                 eventWrapper.appendChild(titleWrapper);
                 // Define second, minute, hour, and day variables
                 var now = new Date();
@@ -225,14 +245,12 @@ Module.register("MMM-VietNamEventsCalendar", {
                         timeStr = this.translate("RUNNING") + moment(event.endDate, "x").fromNow(true)
                         timeStr += "<br>" + moment(event.startDate, "x").format(this.config.dateEndFormat);
                     }
-
                     // If startDate > a week -> display Date
-                    if (moment(event.startDate,"x")._i - Date.now() > oneDay * 7) {
+                    if (moment(event.startDate, "x")._i - Date.now() > oneDay * 7) {
                         timeStr += "<br>" + moment(event.startDate, "x").format("LT");
                     }
                     // Display endTime
-                    if(this.config.displayEndTime)
-                    {
+                    if (this.config.displayEndTime) {
                         timeStr += " - " + moment(event.endDate, "x").format(this.config.dateEndFormat);
                     }
                 }
@@ -285,7 +303,6 @@ Module.register("MMM-VietNamEventsCalendar", {
                 timer: 7000
             });
         }
-
         // VIETNAM EVENTS
         var getNow = new Date();
         var getMonth = ("0" + (getNow.getMonth() + 1)).slice(-2);
@@ -296,15 +313,13 @@ Module.register("MMM-VietNamEventsCalendar", {
             if (this.config.maximumEntries <= maxEntries) {
                 maxEntries = this.config.maximumEntries
             }
-
             for (var i = 0; i < maxEntries; i++) {
                 var getTitle = getVNEvent[i].split('-'); // [date/month],[title]
                 var secondSplit = getTitle[0].split('/'); // [date],[month]
-                var getLunarInfo = getLunarDate(parseInt(secondSplit[0]),parseInt(secondSplit[1]),getYear);
+                var getLunarInfo = getLunarDate(parseInt(secondSplit[0]), parseInt(secondSplit[1]), getYear);
                 var getLunarDay = ("0" + getLunarInfo.day).slice(-2);
                 var getLunarMonth = ("0" + getLunarInfo.month).slice(-2);
-                var getDOW = TUAN[(getLunarInfo.jd+1) % 7];
-
+                var getDOW = TUAN[(getLunarInfo.jd + 1) % 7];
                 var eventWrapper = document.createElement("tr");
                 eventWrapper.style.color = this.config.lunarColor;
                 // Title
@@ -317,13 +332,10 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // Time
                 var timeWrapper = document.createElement("td");
                 timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
-                if(this.config.displayLunarDate)
-                {
-                    timeWrapper.innerHTML = getDOW + ", "+ getTitle[0] + "<sup style = 'font-size: 15px; vertical-align: top; position: relative; top: 4px; '>(" + getLunarDay + "/" + getLunarMonth + ")</sup>";    
-                }
-                else
-                {
-                    timeWrapper.innerHTML = getDOW + ", "+ getTitle[0];  
+                if (this.config.displayLunarDate) {
+                    timeWrapper.innerHTML = getDOW + ", " + getTitle[0] + "<sup style = 'font-size: 15px; vertical-align: top; position: relative; top: 4px; '>(" + getLunarDay + "/" + getLunarMonth + ")</sup>";
+                } else {
+                    timeWrapper.innerHTML = getDOW + ", " + getTitle[0];
                 }
                 timeWrapper.style.cssFloat = "right";
                 timeWrapper.className = "time bold ";
@@ -331,7 +343,6 @@ Module.register("MMM-VietNamEventsCalendar", {
                 wrapper.appendChild(eventWrapper);
             }
         }
-
         // Create a button with css = switchBtn, onClick event = switchCalendar()
         if (this.config.displayButton == true) {
             var switchBtn = document.createElement("BUTTON");
@@ -343,7 +354,6 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         return wrapper;
     },
-
     // Switch calendar from external notification
     notificationReceived: function(notification, payload, sender) {
         if (notification == "SWITCH_CALENDAR") {
@@ -352,11 +362,15 @@ Module.register("MMM-VietNamEventsCalendar", {
             this.switchCalendar("All"); // Switch to first calendar (All calendar will be displayed)
         }
     },
-    // This is event func will be invoked when click button
-    // This func will switch to next calendar inside ns_VNCal.arrUrls[] until reach to the last one
+    /**
+     * This func will be switched to next calendar inside ns_VNCal.arrUrls[] until reach to the last one
+     *
+     * @param {string} mode, "All" is when standing at first screen, !All is other one
+     *
+     */
     switchCalendar: function(mode = "!All") {
         // If the mirror has more than 1 calendar url
-        if (ns_VNCal.numOfUrls > 0) {
+        if (ns_VNCal.numOfUrls > 0 && this.config.calendars[0].url != "") {
             if (mode == "All") {
                 //this.config.displayLunarEvents = true;
                 for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
@@ -400,55 +414,16 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
         }
     },
-    getHeader: function() {
-        //First time when finished loading calendar
-        if (ns_VNCal.currentCalIndex == 0) {
-            return this.translate("ALL EVENTS ARE COMING");
-        } else {
-            if (this.config.displayLunarEvents && ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1) {
-                return this.translate("LUNAR CALENDAR");
-            } else {
-                var myAvailableElement = ns_VNCal.currentCalIndex - 1; // We need to minus by 1 when using with arr[]
-                if (this.config.calendars[myAvailableElement].hasOwnProperty("name")) {
-                    return this.config.calendars[myAvailableElement].name;
-                } else {
-                    //Check my available calendar to display my sentence
-                    var getIndexOfMyCalendar = ns_VNCal.arrUrls[myAvailableElement].indexOf("google");
-                    if (getIndexOfMyCalendar > 0) {
-                        // Function to get character at N times
-                        function nthIndex(str, pat, n) {
-                            var L = str.length,
-                                i = -1;
-                            while (n-- && i++ < L) {
-                                i = str.indexOf(pat, i);
-                                if (i < 0) break;
-                            }
-                            return i;
-                        }
-                        var getFifthSlashIndex = nthIndex(ns_VNCal.arrUrls[myAvailableElement], '/', 5) + 1;
-                        var getFirstPercentageIndex = ns_VNCal.arrUrls[myAvailableElement].indexOf("%");
-                        var getLengthAccount = getFirstPercentageIndex - getFifthSlashIndex;
-                        var getGmailAccount = ns_VNCal.arrUrls[myAvailableElement].substr(getFifthSlashIndex, getLengthAccount);
-                        return this.translate("EVENT OF - ") + getGmailAccount;
-                    }
-                }
-            }
-        }
-    },
-
-
-/*
-***********************************************
-** SOURCE CODE BELOW FROM DEFAULT CALENDAR   **
-***********************************************
-*/
-
-    /* hasCalendarURL(url)
+    /*
+     ***************************************************************************
+     **************** SOURCE CODE BELOW FROM DEFAULT CALENDAR   ****************
+     ***************************************************************************
+     */
+    /**
      * Check if this config contains the calendar url.
      *
-     * argument url string - Url to look for.
-     *
-     * return bool - Has calendar url
+     * @param {string} url, Url to look for
+     * @returns {bool} - Has calendar url
      */
     hasCalendarURL: function(url) {
         for (var c in this.config.calendars) {
@@ -459,10 +434,10 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         return false;
     },
-    /* createEventList()
+    /**
      * Creates the sorted list of all events.
      *
-     * return array - Array with events.
+     * @return {array} - Array with events.
      */
     createEventList: function() {
         var events = [];
@@ -498,7 +473,6 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         return false;
     },
-
     /**
      * Requests node helper to add calendar url.
      *
@@ -512,15 +486,14 @@ Module.register("MMM-VietNamEventsCalendar", {
             maximumNumberOfDays: this.config.maximumNumberOfDays
         });
     },
-
     /**
      * Shortens a string if it's longer than maxLength and add a ellipsis to the end
      *
-     * @param {string} string Text string to shorten
-     * @param {number} maxLength The max length of the string
-     * @param {boolean} wrapEvents Wrap the text after the line has reached maxLength
-     * @param {number} maxTitleLines The max number of vertical lines before cutting event title
-     * @returns {string} The shortened string
+     * @param {string} string, Text string to shorten
+     * @param {number} maxLength, The max length of the string
+     * @param {boolean} wrapEvents, Wrap the text after the line has reached maxLength
+     * @param {number} maxTitleLines, The max number of vertical lines before cutting event title
+     * @returns {string} - The shortened string
      */
     shorten: function(string, maxLength, wrapEvents, maxTitleLines) {
         if (typeof string !== "string") {
@@ -560,13 +533,12 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
         }
     },
-
     /**
      * Transforms the title of an event for usage.
      * Replaces parts of the text as defined in config.titleReplace.
      *
      * @param {string} title, Title will be transformed
-     * @returns {string} The transformed title.
+     * @returns {string} - The transformed title.
      */
     titleTransform: function(title) {
         title = this.shorten(title, this.config.maxTitleLength, this.config.wrapEvents, this.config.maxTitleLines);
