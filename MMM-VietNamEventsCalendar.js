@@ -182,7 +182,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         } else if (notification === "INCORRECT_URL") {
             // Check whether myUrl is DUMMY(self-defined) or Wrong(wrong url input)
             if (payload.url != "DUMMY HIDEN") {
-                if (ns_VNCal.numOfUrls > 0 && !isCalendarsAvailable(this.config)) Log.error("Calendar Error. Incorrect url: " + payload.url);
+                if (isCalendarsAvailable(this.config)) Log.error("Calendar Error. Incorrect url: " + payload.url);
             }
         }
         this.updateDom(this.config.animationSpeed);
@@ -206,6 +206,16 @@ Module.register("MMM-VietNamEventsCalendar", {
                 var existTitle = false;
                 var event = events[e];
                 var eventWrapper = document.createElement("tr");
+                // console.log(events)
+                // console.log(event)
+                // console.log(event.url);
+                // console.log(ns_VNCal.currentCalIndex);
+                // console.log(events[ns_VNCal.currentCalIndex]);
+                // console.log(events[ns_VNCal.currentCalIndex].url);
+                // console.log(ns_VNCal.arrUrls.length);
+                if (ns_VNCal.currentCalIndex != 0) {
+                    if (event.url != ns_VNCal.arrUrls[ns_VNCal.currentCalIndex - 1]) continue;
+                }
                 // Color calendars
                 for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
                     if (event.url === ns_VNCal.arrUrls[i]) {
@@ -308,6 +318,7 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
             var audio = new Audio('modules/MMM-VietNamEventsCalendar/resources/Alarm.mp3');
             audio.play();
+            console.log("ALERT EVENT IS COMMING");
             this.sendNotification("SHOW_ALERT", {
                 type: "alert",
                 title: "<h2>" + combineEventName + "</h2>",
@@ -382,48 +393,17 @@ Module.register("MMM-VietNamEventsCalendar", {
      */
     switchCalendar: function(mode = "!All") {
         // If the mirror has more than 1 calendar url
-        if (ns_VNCal.numOfUrls > 0 && isCalendarsAvailable(this.config)) {
+        if (isCalendarsAvailable(this.config)) {
             if (mode == "All") {
-                //this.config.displayLunarEvents = true;
-                for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
-                    this.config.calendars[i].url = ns_VNCal.arrUrls[i];
-                }
-                // Reset counter
                 ns_VNCal.currentCalIndex = 0;
-                this.start(); // Re-invoke to update
             } else {
-                // Show personalCal
-                if (ns_VNCal.currentCalIndex < ns_VNCal.numOfUrls) {
-                    // Display only 1 calendar at [0] with each element[ns_VNCal.currentCalIndex]
-                    // hide the other by "DUMMY HIDEN"
-                    this.config.calendars[0].url = ns_VNCal.arrUrls[ns_VNCal.currentCalIndex];
-                    for (var i = 1; i < ns_VNCal.numOfUrls; i++) {
-                        this.config.calendars[i].url = "DUMMY HIDEN";
-                    }
-                    ns_VNCal.currentCalIndex++;
-                }
-                // Show lunarCal
-                else if (ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls) {
-                    this.config.calendars[0].url = "DUMMY HIDEN";
-                    ns_VNCal.currentCalIndex++;
-                    if (!this.config.displayLunarEvents) {
-                        for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
-                            this.config.calendars[i].url = ns_VNCal.arrUrls[i];
-                        }
-                        // Reset counter
-                        ns_VNCal.currentCalIndex = 0;
-                    }
-                }
-                // Show all
-                else {
-                    for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
-                        this.config.calendars[i].url = ns_VNCal.arrUrls[i];
-                    }
-                    // Reset counter
+                ns_VNCal.currentCalIndex++;
+                if (ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 2) // All, N of googleCalendar, lunar
+                {
                     ns_VNCal.currentCalIndex = 0;
                 }
-                this.start(); // Re-invoke to update
             }
+            this.updateDom(this.config.animationSpeed);
         }
     },
     /*
