@@ -24,24 +24,24 @@ Module.register("MMM-VietNamEventsCalendar", {
         fetchInterval: 1 * 60 * 1000, // Update every 1 minutes.
         animationSpeed: 500,
         displayButton: true, // Display button to switch between calendars
-        displayEndTime: true,
         displayLunarDate: true,
-        displayPersonalEvents: true,
+        displayEndTime: true,
         dateEndFormat: "LT(DD/MM)",
         defaultColor: "White",
-        lunarColor: "LightGreen",
         colored: true,
+        lunarColor: "LightGreen",
         tableClass: "xsmall",
         displayLunarEvents: true,
         calendars: [{
             url: "",
             color: "",
-            name: ""
+            title: ""
         }],
+        displayPersonalEvents: true,
         personalDateEvent: [{
-            day: 7,
-            month: 7,
-            title: "- Sinh nhật Quân",
+            day: 14,
+            month: 8,
+            title: "- After ghost day :D",
         }]
     },
     // Define required css.
@@ -79,8 +79,8 @@ Module.register("MMM-VietNamEventsCalendar", {
             else {
                 var myAvailableElement = ns_VNCal.currentCalIndex - 1; // We need to minus by 1 when using with arr[]
                 // If user has input field "name"
-                if (this.config.calendars[myAvailableElement].hasOwnProperty("name")) {
-                    result = this.config.calendars[myAvailableElement].name;
+                if (this.config.calendars[myAvailableElement].hasOwnProperty("title")) {
+                    result = this.config.calendars[myAvailableElement].title;
                 } else {
                     // E.g: https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics
                     // -> anhquantong77
@@ -94,28 +94,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         return result;
     },
     start: function() {
-        // Add personal events into array and also sort INC
-        if (this.config.displayPersonalEvents) {
-            var getPersonalEventsArr = this.config.personalDateEvent;
-            if (getPersonalEventsArr.length > 0) {
-                // Check whether events were added to array or not, because it will be overlaped after requested interval time
-                for (index in getPersonalEventsArr) {
-                    var addDayDigit = ("0" + getPersonalEventsArr[index].day).slice(-2);
-                    var addMonthDigit = ("0" + getPersonalEventsArr[index].month).slice(-2);
-                    var existFlag = false;
-                    for (element in DL[getPersonalEventsArr[index].month - 1]) {
-                        var strCombine = addDayDigit + "/" + addMonthDigit + getPersonalEventsArr[index].title;
-                        if (DL[getPersonalEventsArr[index].month - 1][element] == strCombine) {
-                            existFlag = true;
-                            break;
-                        }
-                    }
-                    if (!existFlag) {
-                        DL[getPersonalEventsArr[index].month - 1] = sortDayINC(getPersonalEventsArr[index].day, getPersonalEventsArr[index].month, getPersonalEventsArr[index].title);
-                    }
-                }
-            }
-        }
+        this.addPersonalEvents();
         if (ns_VNCal.numOfUrls == 0) { // This condition will avoid do too much time when re-invoke start())
             Log.log("Starting module: " + this.name);
             // Set locale to setup time format environment.
@@ -157,6 +136,59 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         this.calendarData = {};
         this.loaded = false;
+    },
+    /**
+     * Check whether personalDateEvent{} is OK or not
+     *
+     * @returns {bool} - true is OK, false is !OK
+     */
+    isPersonalEventsAvailable: function() {
+        var isOK = true;
+        if (this.config.hasOwnProperty('personalDateEvent')) {
+            for (var e in this.config.personalDateEvent) {
+                var event = this.config.personalDateEvent[e];
+                if (!event.hasOwnProperty('day') || !event.hasOwnProperty('month') || !event.hasOwnProperty('title')) {
+                    console.log("Please input 'day', 'month', and 'title' into personalDateEvent{}");
+                    isOK = false;
+                    break;
+                } else {
+                    if (typeof(event.day) != 'number' || typeof(event.month) != 'number') {
+                        console.log("Please input number into 'day' and 'month'");
+                        isOK = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            console.log("Please add personalDateEvent{} in defaults{} config in this file");
+            isOK = false;
+        }
+        return isOK;
+    },
+    /**
+     * This func will add personal events from personalDateEvent{} into Lunar array to display in month
+     *
+     */
+    addPersonalEvents: function() {
+        if (this.config.displayPersonalEvents && this.isPersonalEventsAvailable()) {
+            var eventArr = this.config.personalDateEvent;
+            for (e in eventArr) {
+                var day2Digits = ("0" + eventArr[e].day).slice(-2);
+                var month2Digits = ("0" + eventArr[e].month).slice(-2);
+                var isExist = false;
+                // Check whether events were added to array or not, because it will be overlaped after requested interval time
+                for (dlElement in DL[eventArr[e].month - 1]) {
+                    var strCombine = day2Digits + "/" + month2Digits + eventArr[e].title;
+                    if (DL[eventArr[e].month - 1][dlElement] == strCombine) {
+                        isExist = true;
+                        break;
+                    }
+                }
+                if (!isExist) {
+                    DL[eventArr[e].month - 1] = sortDayINC(eventArr[e].day, eventArr[e].month, eventArr[e].title);
+                }
+            }
+        }
     },
     socketNotificationReceived: function(notification, payload) {
         if (notification === "CALENDAR_EVENTS") {

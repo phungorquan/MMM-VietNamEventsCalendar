@@ -224,7 +224,7 @@ function getYearCanChi(year) {
 	return CAN[(year+6) % 10] + " " + CHI[(year+8) % 12];
 }
 
-// Sort any day in DL[i] when add to this array (DESCREMENT)
+// Sort any day in DL[i] when add to this array (INCREMENT)
 function sortDayINC(dayOfEvent,monthOfEvent,title){
 	var indexDL = 0;
 	var sortEvent = false;
