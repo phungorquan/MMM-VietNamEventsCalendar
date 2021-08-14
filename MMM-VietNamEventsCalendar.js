@@ -112,20 +112,28 @@ Module.register("MMM-VietNamEventsCalendar", {
                 },
             });
         }
+        // For first load
         for (var c in this.config.calendars) {
             var calendar = this.config.calendars[c];
             calendar.url = calendar.url.replace("webcal://", "http://");
             this.addCalendar(calendar.url);
             // Trigger ADD_CALENDAR every fetchInterval to make sure there is always a calendar
             // fetcher running on the server side.
-            var self = this;
-            clearInterval(ns_VNCal.getInterval);
-            ns_VNCal.getInterval = setInterval(function() {
-                self.addCalendar(calendar.url);
-                self.switchCalendar("All"); // Switch to first calendar (All calendar will be displayed)
-                ns_VNCal.titleArr = [];
-            }, self.config.fetchInterval);
         }
+        var self = this;
+        // Clear interval in case this.start() are re-invoked
+        clearInterval(ns_VNCal.getInterval);
+        ns_VNCal.getInterval = setInterval(function() {
+            for (var c in self.config.calendars) {
+                var calendar = self.config.calendars[c];
+                calendar.url = calendar.url.replace("webcal://", "http://");
+                self.addCalendar(calendar.url);
+                // Trigger ADD_CALENDAR every fetchInterval to make sure there is always a calendar
+                // fetcher running on the server side.
+            }
+            self.switchCalendar("All"); // Switch to first calendar (All calendar will be displayed)
+            ns_VNCal.titleArr = [];
+        }, self.config.fetchInterval); // Update calendar every fetchInterval minnute
         ns_VNCal.numOfUrls = ns_VNCal.arrUrls.length; // Restart numOfUrls
         if (ns_VNCal.numOfUrls == 0) // This condition will avoid assigning urls too much when re-invoke start()
         {
