@@ -50,7 +50,7 @@ Module.register("MMM-VietNamEventsCalendar", {
     },
     // Define required scripts.
     getScripts: function() {
-        return ["moment.js", "VietNamCal.js"];
+        return ["moment.js", "VietNamCal.js", "UtilsChecking.js"];
     },
     // Define required translations.
     getTranslations: function() {
@@ -146,39 +146,11 @@ Module.register("MMM-VietNamEventsCalendar", {
         this.loaded = false;
     },
     /**
-     * Check whether personalDateEvent{} is OK or not
-     *
-     * @returns {bool} - true is OK, false is !OK
-     */
-    isPersonalEventsAvailable: function() {
-        var isOK = true;
-        if (this.config.hasOwnProperty('personalDateEvent')) {
-            for (var e in this.config.personalDateEvent) {
-                var event = this.config.personalDateEvent[e];
-                if (!event.hasOwnProperty('day') || !event.hasOwnProperty('month') || !event.hasOwnProperty('title')) {
-                    console.log("Please input 'day', 'month', and 'title' into personalDateEvent{}");
-                    isOK = false;
-                    break;
-                } else {
-                    if (typeof(event.day) != 'number' || typeof(event.month) != 'number') {
-                        console.log("Please input number into 'day' and 'month'");
-                        isOK = false;
-                        break;
-                    }
-                }
-            }
-        } else {
-            console.log("Please add personalDateEvent{} in defaults{} config in this file");
-            isOK = false;
-        }
-        return isOK;
-    },
-    /**
      * This func will add personal events from personalDateEvent{} into Lunar array to display in month
      *
      */
     addPersonalEvents: function() {
-        if (this.config.displayPersonalEvents && this.isPersonalEventsAvailable()) {
+        if (this.config.displayPersonalEvents && isPersonalEventsAvailable(this.config)) {
             var eventArr = this.config.personalDateEvent;
             for (e in eventArr) {
                 var day2Digits = ("0" + eventArr[e].day).slice(-2);
@@ -210,7 +182,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         } else if (notification === "INCORRECT_URL") {
             // Check whether myUrl is DUMMY(self-defined) or Wrong(wrong url input)
             if (payload.url != "DUMMY HIDEN") {
-                if (ns_VNCal.numOfUrls > 0 && this.config.calendars[0].url != "") Log.error("Calendar Error. Incorrect url: " + payload.url);
+                if (ns_VNCal.numOfUrls > 0 && !isCalendarsAvailable(this.config)) Log.error("Calendar Error. Incorrect url: " + payload.url);
             }
         }
         this.updateDom(this.config.animationSpeed);
@@ -410,7 +382,7 @@ Module.register("MMM-VietNamEventsCalendar", {
      */
     switchCalendar: function(mode = "!All") {
         // If the mirror has more than 1 calendar url
-        if (ns_VNCal.numOfUrls > 0 && this.config.calendars[0].url != "") {
+        if (ns_VNCal.numOfUrls > 0 && isCalendarsAvailable(this.config)) {
             if (mode == "All") {
                 //this.config.displayLunarEvents = true;
                 for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
