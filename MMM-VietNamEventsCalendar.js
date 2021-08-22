@@ -17,28 +17,28 @@ Module.register("MMM-VietNamEventsCalendar", {
     defaults: {
         maximumEntries: 10, // Total Maximum Entries
         maximumNumberOfDays: 365,
-        showLocation: true,
         maxTitleLength: 20,
-        wrapEvents: true, // wrap events to multiple lines breaking at maxTitleLength
         maxTitleLines: 3,
+        wrapEvents: true, // wrap events to multiple lines breaking at maxTitleLength
         fetchInterval: 1 * 60 * 1000, // Update every 1 minutes.
         animationSpeed: 500,
-        displaySwitchBtn: true, // Display button to switch between calendars
-        displayLunarDate: true,
-        displayEndTime: true,
-        dateEndFormat: "LT(DD/MM)",
-        defaultColor: "White",
-        colored: true,
-        lunarColor: "LightGreen",
         tableClass: "xsmall",
+        displaySwitchBtn: true, // Display button to switch between calendars
         displayCalendarAfterInterval: true,
         calendarAfterInterval: 0, // 0(All), 1(first google calendar),...
-        displayLunarEvents: true,
+        displayEndTime: true,
+        dateEndFormat: "LT(DD/MM)",
+        colored: true,
+        showLocation: true,
         calendars: [{
             url: "",
             color: "",
             title: ""
         }],
+        lunarColor: "LightGreen",
+        defaultColor: "White",
+        displayLunarEvents: true,
+        displayLunarDate: true,
         displayPersonalEvents: true,
         personalDateEvent: [{
             day: 14,
@@ -397,7 +397,7 @@ Module.register("MMM-VietNamEventsCalendar", {
             this.switchCalendar("PRE");
         } else if (notification == "NEXT_CALENDAR") {
             this.switchCalendar("NEXT");
-        } else if (notification == "SWITCH_ALL_CALENDAR") {
+        } else if (notification == "SWITCH_TO_ALL_CALENDARS") {
             this.switchCalendar("ALL"); // Switch to first calendar (All calendar will be displayed)
         }
     },

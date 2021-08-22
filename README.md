@@ -1,38 +1,91 @@
-# MODULE: VietNamEventsCalendar
-![image](MMM-VietNamEventsCalendar.png)
+## MODULE: VietNamEventsCalendar
+![image](resources/MMM-VietNamEventsCalendar.png)
 
 - This module will display your personal google calendar and VietNam events or your events
 - We can edit VietNam events in VietNamCal.js
 
-# CONFIG:
-```
+## DEFAULT CONFIG:
+To use this module, add below config into the modules array in the `config/config.js` file.
+
+```js
 {
-    "module": "MMM-VietNamEventsCalendar",
-    "position": "top_left",
-    "config": {
-        "maximumEntries": 10,
-        "lunarColor": "LightGreen",
-        "calendars": [{
-            "url": "https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics",
-            "color": "Violet",
-            "name": "Lịch cá nhân của anhquantong77"
-        }, {
-            "url": "https://calendar.google.com/calendar/ical/quan.ng0anhin98%40gmail.com/public/basic.ics",
-            "color": "PowderBlue",
-            "name": "Lịch cá nhân của quan.ng0anhin98"
-        }, ],
-        "personalDateEvent":[
-            {
-                "day": 7,
-                "month": 7,
-                "title": "- Sinh nhật Quân",
-            }
-        ]
+    module: "MMM-VietNamEventsCalendar",
+    position: "top_left",
+    config: {
+        maximumEntries: 10,
+        lunarColor: "LightGreen",
+        calendars: [
+	{
+            url: "https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics",
+            color: "Violet",
+            name: "Google lịch của anhquantong77 nha"
+        }, 
+	{
+            url: "https://calendar.google.com/calendar/ical/quan.ng0anhin98%40gmail.com/public/basic.ics",
+            color: "PowderBlue",
+            name: "Google lịch của quan.ng0anhin98 nè"
+        }],
+        personalDateEvent:[
+        {
+            day: 7,
+            month: 7,
+            title: "- Xiu BirthDay :D"
+        }]
     }
 }
-        
 ```
-# EVENTS:
+## CONFIGURATION OPTIONS
+
+| Option | Type | Possible Values | Default Value | Description |
+| --- | --- | --- | --- | --- |
+| `maximumEntries`           | `int` | `0` - `100`        | `10`                     | The maximum number of events shown. |
+| `maximumNumberOfDays`      | `int` | `365`, `366`       | `365`                    | The maximum number of days in the future. |
+| `maxTitleLength`           | `int` | `10` - `50`        | `20`                     | The maximum title length. |
+| `maxTitleLines`            | `int` | `0` - `10`         | `3`                      | The maximum number of lines a title will wrap vertically before being cut (Only enabled if `wrapEvents` is also enabled). |
+| `wrapEvents`               | `bool` | `true`, `false`    | `true`                   | Wrap event titles to multiple lines. Breaks lines at the length defined by `maxTitleLength`. |
+| `fetchInterval`      | `int`  | `1000` - `86400000`     | `60000` (1')             | How often does the content needs to be fetched? (Milliseconds). |
+| `animationSpeed`     | `int`  | `0` - `5000`            | `500` (0.5s)             | Speed of the update animation. (Milliseconds). |
+| `tableClass`         | `String` | `xsmall`, `small`, `medium`, `large`, `xlarge`   | `xsmall` | Name of the classes issued from `main.css`. |
+| `displaySwitchBtn`   | `bool` | `true`, `false`    | `true`                  | Display button to switch calendars (pre/next). |
+| `displayCalendarAfterInterval`  | `bool` | `true`, `false`    | `true`       | Allow display to a calendar after `fetchInterval`. |
+| `calendarAfterInterval`         | `int` | `0` - (google calendar quantity + 2) | `0` (All calendars) | Display at calendar after `fetchInterval`. |
+| `displayEndTime`     | `bool` | `true`, `false`    | `true`                  | Allow display end time of google calender events. |
+| `dateEndFormat`      | `String`  |See [Moment.js](https://momentjs.com/docs/#/parsing/string-format/) | `"LT(DD/MM)"`  | Format to use for the date of events when using absolute dates. (version <= 2.16.0) From version 2.16.0, this option will be used to format absolute and relative dates. (e.g. DD/MM/YY to change from the default MM/DD/YYYY). |
+| `colored`            | `bool` | `true`, `false`    | `true`                    | Allow color google calendar events. |
+| `showLocation`       | `bool` | `true`, `false`    | `true`                    | Allow show location of google calendar events. |
+| `lunarColor`         | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5)) | `"LightGreen"`                     | Color of VietNam, Personal events. |
+| `defaultColor`       | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5)) | `"LightGreen"`                   | Default color of VietNam, Personal events. |
+| `displayLunarEvents`    | `bool` | `true`, `false`    | `true`                     | Display VietNam, Personal events. |
+| `displayLunarDate`      | `bool` | `true`, `false`    | `true`                     | Display VietNam, Personal lunar time. |
+| `displayPersonalEvents` | `bool` | `true`, `false`    | `true`                     | Display Personal events. |
+
+## CALENDARS OPTIONS
+| Option | Type | Possible Values | Default Value | Description |
+| --- | --- | --- | --- | --- |
+| `calendars` | `[]` | See `calendar` configuration below     | An example calendar                  | The list of calendars. |
+| `url`   | `String` | See `url` configuration below       | Any public accessible .ical calendar    | The url of the calendar .ical. This property is required. |
+| `color` | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5))    | `"LightGreen"`                     | Color of VietNam, Personal events. |
+| `title` | `String` | Your calendar name                   | Your calendar name                     | You can put your calendar name. |
+
+## PERSONAL DATE EVENT OPTIONS
+| Option | Type | Possible Values | Default Value | Description |
+| --- | --- | --- | --- | --- |
+| `personalDateEvent`| `[]` | See `personalDateEvent` configuration below     | An example calendar                     | The list of personalDateEvent. |
+| `day`   | `int`    | `1-31`              | Your event day           | Your event day. |
+| `month` | `int`    | `1-12`              | Your event month         | Your event month. |
+| `title` | `String` | Your event name     | Your event name          | You can put your event name. |
+
+## NOTIFICATIONS
+
+The following is the list of notifications that MMM-pages will handle:
+
+| Notification | Payload type | Description |
+| --- | --- | --- |
+| `PREVIOUS_CALENDAR`      | *None* | Switch to next calendar. |
+| `NEXT_CALENDAR`          | *None* | Switch to previous calendar. |
+| `SWITCH_TO_ALL_CALENDAR` | *None* | Switch to page which include all calendars. |
+
+## EVENTS:
 1. Tết Dương lịch
 2. Ngày Sinh viên Học sinh VN
 3. Tết ông Công ông Táo
