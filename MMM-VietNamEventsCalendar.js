@@ -23,7 +23,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         maxTitleLines: 3,
         fetchInterval: 1 * 60 * 1000, // Update every 1 minutes.
         animationSpeed: 500,
-        displayButton: true, // Display button to switch between calendars
+        displaySwitchBtn: true, // Display button to switch between calendars
         displayLunarDate: true,
         displayEndTime: true,
         dateEndFormat: "LT(DD/MM)",
@@ -31,6 +31,8 @@ Module.register("MMM-VietNamEventsCalendar", {
         colored: true,
         lunarColor: "LightGreen",
         tableClass: "xsmall",
+        displayCalendarAfterInterval: true,
+        calendarAfterInterval: 0, // 0(All), 1(first google calendar),...
         displayLunarEvents: true,
         calendars: [{
             url: "",
@@ -131,7 +133,13 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // Trigger ADD_CALENDAR every fetchInterval to make sure there is always a calendar
                 // fetcher running on the server side.
             }
-            self.switchCalendar("All"); // Switch to first calendar (All calendar will be displayed)
+            if (self.config.displayCalendarAfterInterval) {
+                if (self.config.calendarAfterInterval <= ns_VNCal.numOfUrls + 1) {
+                    ns_VNCal.currentCalIndex = self.config.calendarAfterInterval;
+                } else {
+                    console.log("Can not back to calendar because you input wrong calender index");
+                }
+            }
             ns_VNCal.titleArr = [];
         }, self.config.fetchInterval); // Update calendar every fetchInterval minnute
         ns_VNCal.numOfUrls = ns_VNCal.arrUrls.length; // Restart numOfUrls
@@ -230,12 +238,10 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // Title
                 var titleWrapper = document.createElement("td");
                 titleWrapper.innerHTML = this.titleTransform(event.title);
-                titleWrapper.style.fontFamily = "Roboto,bold";
-                titleWrapper.className = "time bold ";
+                titleWrapper.className = "title bold";
                 // Time
                 var timeWrapper = document.createElement("td");
                 var timeStr = "";
-                timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
                 eventWrapper.appendChild(titleWrapper);
                 // Define second, minute, hour, and day variables
                 var now = new Date();
@@ -277,7 +283,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                     }
                 }
                 timeWrapper.innerHTML = timeStr;
-                timeWrapper.className = "time bold ";
+                timeWrapper.className = "time bold";
                 eventWrapper.appendChild(timeWrapper);
                 wrapper.appendChild(eventWrapper);
                 // Location
@@ -294,7 +300,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                     locationRow.style.letterSpacing = "0.5px";
                     var descCell = document.createElement("td");
                     descCell.className = "location";
-                    descCell.colSpan = "1";
+                    descCell.colSpan = "2";
                     descCell.innerHTML = this.titleTransform(myLocation);
                     locationRow.appendChild(descCell);
                     wrapper.appendChild(locationRow);
@@ -348,59 +354,76 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // Title
                 var titleWrapper = document.createElement("td");
                 titleWrapper.innerHTML = this.titleTransform(getTitle[1]);
-                titleWrapper.style.fontFamily = "Roboto,bold";
-                //titleWrapper.style.cssFloat = "left";
+                titleWrapper.className = "title bold";
                 eventWrapper.appendChild(titleWrapper);
                 wrapper.appendChild(eventWrapper);
                 // Time
                 var timeWrapper = document.createElement("td");
-                timeWrapper.style.fontFamily = "Roboto,bold"; // Xiu add font
                 if (this.config.displayLunarDate) {
                     timeWrapper.innerHTML = getDOW + ", " + getTitle[0] + "<sup style = 'font-size: 15px; vertical-align: top; position: relative; top: 4px; '>(" + getLunarDay + "/" + getLunarMonth + ")</sup>";
                 } else {
                     timeWrapper.innerHTML = getDOW + ", " + getTitle[0];
                 }
-                timeWrapper.style.cssFloat = "right";
-                timeWrapper.className = "time bold ";
+                timeWrapper.className = "time bold";
                 eventWrapper.appendChild(timeWrapper);
                 wrapper.appendChild(eventWrapper);
             }
         }
-        // Create a button with css = switchBtn, onClick event = switchCalendar()
-        if (this.config.displayButton == true) {
-            var switchBtn = document.createElement("BUTTON");
-            switchBtn.setAttribute("id", "idLunarSwitch");
-            switchBtn.innerHTML = this.translate("SWITCH CALENDARS");
-            switchBtn.addEventListener("click", () => this.switchCalendar());
-            switchBtn.className = "calendarSwitchBtn"; // This is Xiu's CSS 
-            wrapper.appendChild(switchBtn);
+        // Create switch buttons
+        if (this.config.displaySwitchBtn == true && isCalendarsAvailable(this.config)) {
+            var buttonsRow = document.createElement("tr");
+            var buttonsCell = document.createElement("td");
+            buttonsCell.colSpan = "2";
+            var preBtn = document.createElement("BUTTON");
+            preBtn.setAttribute("id", "idPreCalBtn");
+            preBtn.innerHTML = "<---";
+            preBtn.addEventListener("click", () => this.switchCalendar("PRE"));
+            preBtn.className = "calendarSwitchBtn";
+            buttonsCell.appendChild(preBtn);
+            var nextBtn = document.createElement("BUTTON");
+            nextBtn.setAttribute("id", "idNextCalBtn");
+            nextBtn.innerHTML = "--->";
+            nextBtn.addEventListener("click", () => this.switchCalendar("NEXT"));
+            nextBtn.className = "calendarSwitchBtn";
+            buttonsCell.appendChild(nextBtn);
+            buttonsRow.appendChild(buttonsCell);
+            wrapper.appendChild(buttonsRow);
         }
         return wrapper;
     },
     // Switch calendar from external notification
     notificationReceived: function(notification, payload, sender) {
-        if (notification == "SWITCH_CALENDAR") {
-            this.switchCalendar(); // Switch next calendar
+        if (notification == "PREVIOUS_CALENDAR") {
+            this.switchCalendar("PRE");
+        } else if (notification == "NEXT_CALENDAR") {
+            this.switchCalendar("NEXT");
         } else if (notification == "SWITCH_ALL_CALENDAR") {
-            this.switchCalendar("All"); // Switch to first calendar (All calendar will be displayed)
+            this.switchCalendar("ALL"); // Switch to first calendar (All calendar will be displayed)
         }
     },
     /**
-     * This func will be switched to next calendar inside ns_VNCal.arrUrls[] until reach to the last one
+     * This func will be switched to pre/next calendar inside ns_VNCal.arrUrls[]
      *
-     * @param {string} mode, "All" is when standing at first screen, !All is other one
+     * @param {string} mode, "ALL" is at index 0
      *
      */
-    switchCalendar: function(mode = "!All") {
-        // If the mirror has more than 1 calendar url
+    switchCalendar: function(mode) {
+        // Switch button only works when we have more than 1 google calendar
         if (isCalendarsAvailable(this.config)) {
-            if (mode == "All") {
+            if (mode == "ALL") {
                 ns_VNCal.currentCalIndex = 0;
-            } else {
-                ns_VNCal.currentCalIndex++;
-                if (ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 2) // All, N of googleCalendar, lunar
+            } else if (mode == "PRE") {
+                if (ns_VNCal.currentCalIndex == 0) {
+                    ns_VNCal.currentCalIndex = ns_VNCal.numOfUrls + 1; // Last index
+                } else {
+                    ns_VNCal.currentCalIndex--;
+                }
+            } else if (mode == "NEXT") {
+                if (ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1) // Last index
                 {
                     ns_VNCal.currentCalIndex = 0;
+                } else {
+                    ns_VNCal.currentCalIndex++;
                 }
             }
             this.updateDom(this.config.animationSpeed);
