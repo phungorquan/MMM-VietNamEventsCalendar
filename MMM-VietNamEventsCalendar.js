@@ -52,7 +52,7 @@ Module.register("MMM-VietNamEventsCalendar", {
     },
     // Define required scripts.
     getScripts: function() {
-        return ["moment.js", "VietNamCal.js", "UtilsChecking.js"];
+        return ["moment.js", "VietNamEvents.js", "VietNamCal.js", "UtilsChecking.js"];
     },
     // Define required translations.
     getTranslations: function() {
