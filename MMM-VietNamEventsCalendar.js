@@ -137,7 +137,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                 if (self.config.calendarAfterInterval <= ns_VNCal.numOfUrls + 1) {
                     ns_VNCal.currentCalIndex = self.config.calendarAfterInterval;
                 } else {
-                    console.log("Can not back to calendar because you input wrong calender index");
+                    console.log("Can not back to calendar because you input wrong calendar index");
                 }
             }
             ns_VNCal.titleArr = [];
@@ -205,7 +205,9 @@ Module.register("MMM-VietNamEventsCalendar", {
             } else {
                 // Only show loading when there is not Lunar Calendars
                 if (ns_VNCal.numOfUrls > 0) {
-                    if (ns_VNCal.currentCalIndex != this.config.calendars.length + 1 && ns_VNCal.currentCalIndex != 0) wrapper.innerHTML = this.translate("LOADING") + "<br>";
+                    if (ns_VNCal.currentCalIndex != ns_VNCal.numOfUrls + 1 && ns_VNCal.currentCalIndex != 0) {
+                        wrapper.innerHTML = this.translate("LOADING") + "<br>";
+                    }
                 }
             }
             wrapper.className = this.config.tableClass + " dimmed";
@@ -214,13 +216,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                 var existTitle = false;
                 var event = events[e];
                 var eventWrapper = document.createElement("tr");
-                // console.log(events)
-                // console.log(event)
-                // console.log(event.url);
-                // console.log(ns_VNCal.currentCalIndex);
-                // console.log(events[ns_VNCal.currentCalIndex]);
-                // console.log(events[ns_VNCal.currentCalIndex].url);
-                // console.log(ns_VNCal.arrUrls.length);
+                eventWrapper.className = "normal";
                 if (ns_VNCal.currentCalIndex != 0) {
                     if (event.url != ns_VNCal.arrUrls[ns_VNCal.currentCalIndex - 1]) continue;
                 }
@@ -234,13 +230,13 @@ Module.register("MMM-VietNamEventsCalendar", {
                         }
                     }
                 }
-                eventWrapper.className = "normal";
                 // Title
                 var titleWrapper = document.createElement("td");
                 titleWrapper.innerHTML = this.titleTransform(event.title);
                 titleWrapper.className = "title bold";
                 // Time
                 var timeWrapper = document.createElement("td");
+                timeWrapper.className = "time bold";
                 var timeStr = "";
                 eventWrapper.appendChild(titleWrapper);
                 // Define second, minute, hour, and day variables
@@ -270,7 +266,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                             }
                         }
                     } else {
-                        timeStr = this.translate("RUNNING") + moment(event.endDate, "x").fromNow(true)
+                        timeStr = this.translate("RUNNING") + moment(event.endDate, "x").fromNow(true);
                         timeStr += "<br>" + moment(event.startDate, "x").format(this.config.dateEndFormat);
                     }
                     // If startDate > a week -> display Date
@@ -283,7 +279,6 @@ Module.register("MMM-VietNamEventsCalendar", {
                     }
                 }
                 timeWrapper.innerHTML = timeStr;
-                timeWrapper.className = "time bold";
                 eventWrapper.appendChild(timeWrapper);
                 wrapper.appendChild(eventWrapper);
                 // Location
@@ -293,26 +288,18 @@ Module.register("MMM-VietNamEventsCalendar", {
                         myLocation = event.location;
                     }
                     var locationRow = document.createElement("tr");
-                    locationRow.className = "normal xsmall";
-                    locationRow.style.fontFamily = "Courier New, monospace";
-                    locationRow.style.fontStyle = "italic";
-                    locationRow.style.textAlign = "left";
-                    locationRow.style.letterSpacing = "0.5px";
-                    var descCell = document.createElement("td");
-                    descCell.className = "location";
-                    descCell.colSpan = "2";
-                    descCell.innerHTML = this.titleTransform(myLocation);
-                    locationRow.appendChild(descCell);
-                    wrapper.appendChild(locationRow);
+                    var contentCell = document.createElement("td");
+                    contentCell.className = "location xsmall";
+                    contentCell.colSpan = "2";
+                    contentCell.innerHTML = this.titleTransform(myLocation);
                     // Display a line to separate peronalCal and lunarCal
                     if (this.config.displayLunarEvents && ns_VNCal.currentCalIndex == 0 && e == events.length - 1) {
-                        var lineCol = document.createElement("td");
-                        lineCol.colSpan = "2";
                         var getLine = document.createElement("hr");
                         getLine.style.border = "0.5px solid #666";
-                        lineCol.appendChild(getLine);
-                        wrapper.appendChild(lineCol);
+                        contentCell.appendChild(getLine);
                     }
+                    locationRow.appendChild(contentCell);
+                    wrapper.appendChild(locationRow);
                 }
             }
         }
@@ -333,38 +320,40 @@ Module.register("MMM-VietNamEventsCalendar", {
             });
         }
         // VIETNAM EVENTS
-        var getNow = new Date();
-        var getMonth = ("0" + (getNow.getMonth() + 1)).slice(-2);
-        var getYear = getNow.getFullYear();
-        if (this.config.displayLunarEvents == true && (ns_VNCal.currentCalIndex == 0 || ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1)) {
+        if (this.config.displayLunarEvents && (ns_VNCal.currentCalIndex == 0 || ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1)) {
+            var getNow = new Date();
+            var getYear = getNow.getFullYear();
             var getVNEvent = getEvent(getNow.getMonth());
-            var maxEntries = getVNEvent.length;
-            if (this.config.maximumEntries <= maxEntries) {
-                maxEntries = this.config.maximumEntries
+            var maxEventQuantity = getVNEvent.length;
+            if (this.config.maximumEntries <= maxEventQuantity) {
+                maxEventQuantity = this.config.maximumEntries
             }
-            for (var i = 0; i < maxEntries; i++) {
-                var getTitle = getVNEvent[i].split('-'); // [date/month],[title]
-                var secondSplit = getTitle[0].split('/'); // [date],[month]
-                var getLunarInfo = getLunarDate(parseInt(secondSplit[0]), parseInt(secondSplit[1]), getYear);
+            for (var i = 0; i < maxEventQuantity; i++) {
+                var eventArr = getVNEvent[i].split('-'); // [date/month, title]
+                var eventDate = eventArr[0].split('/'); // [date, month]
+                var getLunarInfo = getLunarDate(parseInt(eventDate[0]), parseInt(eventDate[1]), getYear);
                 var getLunarDay = ("0" + getLunarInfo.day).slice(-2);
                 var getLunarMonth = ("0" + getLunarInfo.month).slice(-2);
                 var getDOW = TUAN[(getLunarInfo.jd + 1) % 7];
+                // DOM
                 var eventWrapper = document.createElement("tr");
                 eventWrapper.style.color = this.config.lunarColor;
                 // Title
                 var titleWrapper = document.createElement("td");
-                titleWrapper.innerHTML = this.titleTransform(getTitle[1]);
+                titleWrapper.innerHTML = this.titleTransform(eventArr[1]);
                 titleWrapper.className = "title bold";
                 eventWrapper.appendChild(titleWrapper);
                 wrapper.appendChild(eventWrapper);
                 // Time
                 var timeWrapper = document.createElement("td");
-                if (this.config.displayLunarDate) {
-                    timeWrapper.innerHTML = getDOW + ", " + getTitle[0] + "<sup style = 'font-size: 15px; vertical-align: top; position: relative; top: 4px; '>(" + getLunarDay + "/" + getLunarMonth + ")</sup>";
-                } else {
-                    timeWrapper.innerHTML = getDOW + ", " + getTitle[0];
-                }
+                timeWrapper.innerHTML = getDOW + ", " + eventArr[0];
                 timeWrapper.className = "time bold";
+                if (this.config.displayLunarDate) {
+                    var supTimeWrapper = document.createElement("sup");
+                    supTimeWrapper.innerHTML = "(" + getLunarDay + "/" + getLunarMonth + ")";
+                    supTimeWrapper.className = "bottomLunarDate bold";
+                    timeWrapper.appendChild(supTimeWrapper);
+                }
                 eventWrapper.appendChild(timeWrapper);
                 wrapper.appendChild(eventWrapper);
             }
@@ -375,13 +364,13 @@ Module.register("MMM-VietNamEventsCalendar", {
             var buttonsCell = document.createElement("td");
             buttonsCell.colSpan = "2";
             var preBtn = document.createElement("BUTTON");
-            preBtn.setAttribute("id", "idPreCalBtn");
+            // preBtn.setAttribute("id", "idPreCalBtn");
             preBtn.innerHTML = "<---";
             preBtn.addEventListener("click", () => this.switchCalendar("PRE"));
             preBtn.className = "calendarSwitchBtn";
             buttonsCell.appendChild(preBtn);
             var nextBtn = document.createElement("BUTTON");
-            nextBtn.setAttribute("id", "idNextCalBtn");
+            // nextBtn.setAttribute("id", "idNextCalBtn");
             nextBtn.innerHTML = "--->";
             nextBtn.addEventListener("click", () => this.switchCalendar("NEXT"));
             nextBtn.className = "calendarSwitchBtn";

@@ -10,6 +10,21 @@
   vertical-align: top;
 }
 
+.bottomLunarDate {
+  font-family: Roboto;
+  font-size: 14px;
+  vertical-align: bottom;
+  position: relative;
+}
+
+.location {
+  font-family: "Courier New", monospace;
+  font-style: italic;
+  text-align: left;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
 .calendarSwitchBtn{
   font-family: Roboto;
   text-align: center;
