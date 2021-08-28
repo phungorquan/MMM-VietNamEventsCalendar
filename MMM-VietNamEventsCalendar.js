@@ -163,18 +163,12 @@ Module.register("MMM-VietNamEventsCalendar", {
             for (e in eventArr) {
                 var day2Digits = ("0" + eventArr[e].day).slice(-2);
                 var month2Digits = ("0" + eventArr[e].month).slice(-2);
-                var isExist = false;
-                // Check whether events were added to array or not, because it will be overlaped after requested interval time
-                for (dlElement in DL[eventArr[e].month - 1]) {
-                    var strCombine = day2Digits + "/" + month2Digits + eventArr[e].title;
-                    if (DL[eventArr[e].month - 1][dlElement] == strCombine) {
-                        isExist = true;
-                        break;
-                    }
-                }
-                if (!isExist) {
-                    DL[eventArr[e].month - 1] = sortDayINC(eventArr[e].day, eventArr[e].month, eventArr[e].title);
-                }
+                var fullObj = {
+                    "day": day2Digits,
+                    "month": month2Digits,
+                    "title": eventArr[e].title
+                };
+                DLObj[eventArr[e].month - 1] = sortDayINC(eventArr[e].day, eventArr[e].month, eventArr[e].title);
             }
         }
     },
@@ -329,9 +323,8 @@ Module.register("MMM-VietNamEventsCalendar", {
                 maxEventQuantity = this.config.maximumEntries
             }
             for (var i = 0; i < maxEventQuantity; i++) {
-                var eventArr = getVNEvent[i].split('-'); // [date/month, title]
-                var eventDate = eventArr[0].split('/'); // [date, month]
-                var getLunarInfo = getLunarDate(parseInt(eventDate[0]), parseInt(eventDate[1]), getYear);
+                var eventArr = getVNEvent[i];
+                var getLunarInfo = getLunarDate(parseInt(eventArr.evDate), parseInt(eventArr.evMonth), getYear);
                 var getLunarDay = ("0" + getLunarInfo.day).slice(-2);
                 var getLunarMonth = ("0" + getLunarInfo.month).slice(-2);
                 var getDOW = TUAN[(getLunarInfo.jd + 1) % 7];
@@ -340,13 +333,13 @@ Module.register("MMM-VietNamEventsCalendar", {
                 eventWrapper.style.color = this.config.lunarColor;
                 // Title
                 var titleWrapper = document.createElement("td");
-                titleWrapper.innerHTML = this.titleTransform(eventArr[1]);
+                titleWrapper.innerHTML = this.titleTransform(eventArr.evTitle);
                 titleWrapper.className = "title bold";
                 eventWrapper.appendChild(titleWrapper);
                 wrapper.appendChild(eventWrapper);
                 // Time
                 var timeWrapper = document.createElement("td");
-                timeWrapper.innerHTML = getDOW + ", " + eventArr[0];
+                timeWrapper.innerHTML = getDOW + ", " + eventArr.evDate + "/" + eventArr.evMonth;
                 timeWrapper.className = "time bold";
                 if (this.config.displayLunarDate) {
                     var supTimeWrapper = document.createElement("sup");
@@ -364,13 +357,11 @@ Module.register("MMM-VietNamEventsCalendar", {
             var buttonsCell = document.createElement("td");
             buttonsCell.colSpan = "2";
             var preBtn = document.createElement("BUTTON");
-            // preBtn.setAttribute("id", "idPreCalBtn");
             preBtn.innerHTML = "<---";
             preBtn.addEventListener("click", () => this.switchCalendar("PRE"));
             preBtn.className = "calendarSwitchBtn";
             buttonsCell.appendChild(preBtn);
             var nextBtn = document.createElement("BUTTON");
-            // nextBtn.setAttribute("id", "idNextCalBtn");
             nextBtn.innerHTML = "--->";
             nextBtn.addEventListener("click", () => this.switchCalendar("NEXT"));
             nextBtn.className = "calendarSwitchBtn";
