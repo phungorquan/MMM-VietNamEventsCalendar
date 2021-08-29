@@ -39,12 +39,6 @@ function isPersonalEventsAvailable(configs) {
                 console.log("Please input 'day', 'month', and 'title' into personalDateEvent{}");
                 isOK = false;
                 break;
-            } else {
-                if (typeof(event.day) != 'number' || typeof(event.month) != 'number') {
-                    console.log("Please input number into 'day' and 'month'");
-                    isOK = false;
-                    break;
-                }
             }
         }
     } else {

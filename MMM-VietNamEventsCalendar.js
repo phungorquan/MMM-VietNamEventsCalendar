@@ -29,6 +29,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         displayEndTime: true,
         dateEndFormat: "LT(DD/MM)",
         colored: true,
+        defaultColor: "White",
         showLocation: true,
         calendars: [{
             url: "",
@@ -36,14 +37,13 @@ Module.register("MMM-VietNamEventsCalendar", {
             title: ""
         }],
         lunarColor: "LightGreen",
-        defaultColor: "White",
         displayLunarEvents: true,
         displayLunarDate: true,
         displayPersonalEvents: true,
         personalDateEvent: [{
             day: 14,
             month: 8,
-            title: "- After ghost day :D",
+            title: "After ghost day :D",
         }]
     },
     // Define required css.
@@ -52,7 +52,7 @@ Module.register("MMM-VietNamEventsCalendar", {
     },
     // Define required scripts.
     getScripts: function() {
-        return ["moment.js", "VietNamEvents.js", "VietNamCal.js", "UtilsChecking.js"];
+        return ["moment.js", "modules/MMM-VietNamEventsCalendar/include/VietNamEvents.js", "modules/MMM-VietNamEventsCalendar/src/VietNamCal.js", "modules/MMM-VietNamEventsCalendar/src/UtilsChecking.js"];
     },
     // Define required translations.
     getTranslations: function() {
@@ -168,7 +168,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                     "month": month2Digits,
                     "title": eventArr[e].title
                 };
-                DLObj[eventArr[e].month - 1] = sortDayINC(eventArr[e].day, eventArr[e].month, eventArr[e].title);
+                DLObj[eventArr[e].month - 1] = sortDayINC(parseInt(eventArr[e].day), parseInt(eventArr[e].month), eventArr[e].title);
             }
         }
     },
@@ -217,7 +217,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // Color calendars
                 for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
                     if (event.url === ns_VNCal.arrUrls[i]) {
-                        if (this.config.calendars[i].hasOwnProperty("color")) {
+                        if (this.config.calendars[i].hasOwnProperty("color") && this.config.colored) {
                             eventWrapper.style.color = this.config.calendars[i].color;
                         } else {
                             eventWrapper.style.color = this.config.defaultColor;

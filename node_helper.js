@@ -7,7 +7,7 @@
 
 var NodeHelper = require("node_helper");
 var validUrl = require("valid-url");
-var CalendarFetcher = require("./calendarfetcher.js");
+var CalendarFetcher = require("./src/calendarfetcher.js");
 
 module.exports = NodeHelper.create({
 	// Override start method.
