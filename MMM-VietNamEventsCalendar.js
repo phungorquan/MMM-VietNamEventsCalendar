@@ -161,14 +161,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         if (this.config.displayPersonalEvents && isPersonalEventsAvailable(this.config)) {
             var eventArr = this.config.personalDateEvent;
             for (e in eventArr) {
-                var day2Digits = ("0" + eventArr[e].day).slice(-2);
-                var month2Digits = ("0" + eventArr[e].month).slice(-2);
-                var fullObj = {
-                    "day": day2Digits,
-                    "month": month2Digits,
-                    "title": eventArr[e].title
-                };
-                DLObj[eventArr[e].month - 1] = sortDayINC(parseInt(eventArr[e].day), parseInt(eventArr[e].month), eventArr[e].title);
+                DLObj[eventArr[e].month - 1] = addEventToDL(parseInt(eventArr[e].day), parseInt(eventArr[e].month), eventArr[e].title);
             }
         }
     },

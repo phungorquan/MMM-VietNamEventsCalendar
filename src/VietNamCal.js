@@ -7,7 +7,7 @@
 /**
  * Upgraded VietNam events from Anh Quan Tong (github: phungorquan)
  * Can display lunar days, days of week, and events 
- * You can add more personal event in DL or AL, but need to fill correspondingly months
+ * You can add more personal event in DLObj or ALObj in include/VietNamEvents.js, but need to fill correspondingly months
  */
 var TK21 = new Array(0x46c960, 0x2ed954, 0x54d4a0, 0x3eda50, 0x2a7552, 0x4e56a0, 0x38a7a7, 0x5ea5d0, 0x4a92b0, 0x32aab5, 0x58a950, 0x42b4a0, 0x2cbaa4, 0x50ad50, 0x3c55d9, 0x624ba0, 0x4ca5b0, 0x375176, 0x5c5270, 0x466930, 0x307934, 0x546aa0, 0x3ead50, 0x2a5b52, 0x504b60, 0x38a6e6, 0x5ea4e0, 0x48d260, 0x32ea65, 0x56d520, 0x40daa0, 0x2d56a3, 0x5256d0, 0x3c4afb, 0x6249d0, 0x4ca4d0, 0x37d0b6, 0x5ab250, 0x44b520, 0x2edd25, 0x54b5a0, 0x3e55d0, 0x2a55b2, 0x5049b0, 0x3aa577, 0x5ea4b0, 0x48aa50, 0x33b255, 0x586d20, 0x40ad60, 0x2d4b63, 0x525370, 0x3e49e8, 0x60c970, 0x4c54b0, 0x3768a6, 0x5ada50, 0x445aa0, 0x2fa6a4, 0x54aad0, 0x4052e0, 0x28d2e3, 0x4ec950, 0x38d557, 0x5ed4a0, 0x46d950, 0x325d55, 0x5856a0, 0x42a6d0, 0x2c55d4, 0x5252b0, 0x3ca9b8, 0x62a930, 0x4ab490, 0x34b6a6, 0x5aad50, 0x4655a0, 0x2eab64, 0x54a570, 0x4052b0, 0x2ab173, 0x4e6930, 0x386b37, 0x5e6aa0, 0x48ad50, 0x332ad5, 0x582b60, 0x42a570, 0x2e52e4, 0x50d160, 0x3ae958, 0x60d520, 0x4ada90, 0x355aa6, 0x5a56d0, 0x462ae0, 0x30a9d4, 0x54a2d0, 0x3ed150, 0x28e952); /* Years 2000-2099 */
 var TK22 = new Array(0x4eb520, 0x38d727, 0x5eada0, 0x4a55b0, 0x362db5, 0x5a45b0, 0x44a2b0, 0x2eb2b4, 0x54a950, 0x3cb559, 0x626b20, 0x4cad50, 0x385766, 0x5c5370, 0x484570, 0x326574, 0x5852b0, 0x406950, 0x2a7953, 0x505aa0, 0x3baaa7, 0x5ea6d0, 0x4a4ae0, 0x35a2e5, 0x5aa550, 0x42d2a0, 0x2de2a4, 0x52d550, 0x3e5abb, 0x6256a0, 0x4c96d0, 0x3949b6, 0x5e4ab0, 0x46a8d0, 0x30d4b5, 0x56b290, 0x40b550, 0x2a6d52, 0x504da0, 0x3b9567, 0x609570, 0x4a49b0, 0x34a975, 0x5a64b0, 0x446a90, 0x2cba94, 0x526b50, 0x3e2b60, 0x28ab61, 0x4c9570, 0x384ae6, 0x5cd160, 0x46e4a0, 0x2eed25, 0x54da90, 0x405b50, 0x2c36d3, 0x502ae0, 0x3a93d7, 0x6092d0, 0x4ac950, 0x32d556, 0x58b4a0, 0x42b690, 0x2e5d94, 0x5255b0, 0x3e25fa, 0x6425b0, 0x4e92b0, 0x36aab6, 0x5c6950, 0x4674a0, 0x31b2a5, 0x54ad50, 0x4055a0, 0x2aab73, 0x522570, 0x3a5377, 0x6052b0, 0x4a6950, 0x346d56, 0x585aa0, 0x42ab50, 0x2e56d4, 0x544ae0, 0x3ca570, 0x2864d2, 0x4cd260, 0x36eaa6, 0x5ad550, 0x465aa0, 0x30ada5, 0x5695d0, 0x404ad0, 0x2aa9b3, 0x50a4d0, 0x3ad2b7, 0x5eb250, 0x48b540, 0x33d556); /* Years 2100-2199 */
@@ -159,18 +159,33 @@ function getSolarDate(dd, mm, yyyy) {
 function getYearCanChi(year) {
     return CAN[(year + 6) % 10] + " " + CHI[(year + 8) % 12];
 }
-// Sort any day in DLObj[i] when add to this array (INCREMENT)
-function sortDayINC(dayOfEvent, monthOfEvent, title) {
+/*
+ ***************************************************************************
+ ************** SOURCE CODE BELOW WERE ADDED BY `phungorquan` **************
+ ***************************************************************************
+ */
+/**
+ * Create a temp array object as DLObj with new event was added,
+ * New event will be sorted (INCREMENT)
+ *
+ * @param {int} dayOfEvent, Date of event
+ * @param {int} monthOfEvent, Month of event
+ * @param {string} title, Title of event
+ * @returns {Array Object [{}]} - An array object DLObj was sorted with new event
+ */
+function addEventToDL(dayOfEvent, monthOfEvent, title) {
+    var monthArr = monthOfEvent - 1;
+    var lengthOfMonthArr = DLObj[monthArr].length + 1;
     var indexDL = 0;
     var sortEvent = false;
     var tmpArr = [];
-    for (var numOfDate = 0; numOfDate < DLObj[monthOfEvent - 1].length + 1; numOfDate++) {
-        // Check one by one DL
-        if (indexDL != DLObj[monthOfEvent - 1].length) {
-            var anEvent = DLObj[monthOfEvent - 1][indexDL]
+    // Go through one by one event in DL
+    while (lengthOfMonthArr--) {
+        if (indexDL != DLObj[monthArr].length) {
+            var anEvent = DLObj[monthArr][indexDL];
             // If does not sort 
             if (!sortEvent) {
-                // If DL > eventDate, -> print eventDate first
+                // If DL > eventDate, -> add eventDate first
                 if (anEvent.evDate > dayOfEvent) {
                     tmpArr.push({
                         evDate: ("0" + dayOfEvent).slice(-2),
@@ -179,19 +194,19 @@ function sortDayINC(dayOfEvent, monthOfEvent, title) {
                     });
                     sortEvent = true;
                 }
-                // Else print DL after that
+                // Else add DL first
                 else {
-                    tmpArr.push(DLObj[monthOfEvent - 1][indexDL]);
+                    tmpArr.push(DLObj[monthArr][indexDL]);
                     indexDL++;
                 }
             }
-            // If done, then just print DL
+            // If personal event was added, then just add the rest of DL
             else {
-                tmpArr.push(DLObj[monthOfEvent - 1][indexDL]);
+                tmpArr.push(DLObj[monthArr][indexDL]);
                 indexDL++;
             }
         }
-        // If done DL, -> just print eventDate
+        // If there is only 1 event in DLObj but your custom event larger than it
         else {
             tmpArr.push({
                 evDate: ("0" + dayOfEvent).slice(-2),
@@ -202,9 +217,10 @@ function sortDayINC(dayOfEvent, monthOfEvent, title) {
     }
     return tmpArr;
 }
-// Get special day and add to AL array
-// You should add from DES to INC
-function findSpecialDay() {
+/**
+ * Add special events which not a static day
+ */
+function addSpecialDay() {
     var motherMonth = 5;
     var fatherMonth = 6;
     var thanksGVMonth = 11;
@@ -228,28 +244,33 @@ function findSpecialDay() {
         L = I - J,
         getMonthEASTER = 3 + f((L + 40) / 44),
         getDayEASTER = L + 28 - 31 * f(getMonthEASTER / 4);
-    DLObj[getMonthEASTER - 1] = sortDayINC(getDayEASTER, getMonthEASTER, "-Lễ Phục Sinh");
+    DLObj[getMonthEASTER - 1] = addEventToDL(getDayEASTER, getMonthEASTER, "-Lễ Phục Sinh");
     // MOTHER DAY, FATHER DAY, THANKS GIVING, BLACK FRIDAY
     for (var i = 1; i <= 31; i++) {
         if (TUAN[(jdn2date(jdn(i, motherMonth, getYear))[3] + 1) % 7] == "CN" && counterMother != 2) {
             counterMother++;
-            if (counterMother == 2) DLObj[motherMonth - 1] = sortDayINC(i, motherMonth, "-Ngày của Mẹ");
+            if (counterMother == 2) DLObj[motherMonth - 1] = addEventToDL(i, motherMonth, "-Ngày của Mẹ");
         }
         if (TUAN[(jdn2date(jdn(i, fatherMonth, getYear))[3] + 1) % 7] == "CN" && counterFather != 3) {
             counterFather++;
-            if (counterFather == 3) DLObj[fatherMonth - 1] = sortDayINC(i, fatherMonth, "-Ngày của Cha");
+            if (counterFather == 3) DLObj[fatherMonth - 1] = addEventToDL(i, fatherMonth, "-Ngày của Cha");
         }
         if (TUAN[(jdn2date(jdn(i, thanksGVMonth, getYear))[3] + 1) % 7] == "T5" && counterThanksGV != 4) {
             counterThanksGV++;
             if (counterThanksGV == 4) {
-                DLObj[thanksGVMonth - 1] = sortDayINC(i, thanksGVMonth, "-Lễ tạ ơn");
-                DLObj[thanksGVMonth - 1] = sortDayINC(i + 1, thanksGVMonth, "-BlackFriday");
+                DLObj[thanksGVMonth - 1] = addEventToDL(i, thanksGVMonth, "-Lễ tạ ơn");
+                DLObj[thanksGVMonth - 1] = addEventToDL(i + 1, thanksGVMonth, "-BlackFriday");
             }
         }
     }
 }
-findSpecialDay();
-// Convert AL to DL, respectively
+addSpecialDay();
+/**
+ * Convert AL(Lunar) to DL(Solar), respectively
+ *
+ * @param {int} month, Current month
+ * @returns {Array []} - An array with set of 3 values [index1,date1,month1,index2,date2,month2,...]
+ */
 function ALtoDL(month) {
     var ALarr = [];
     var now = new Date();
@@ -257,10 +278,11 @@ function ALtoDL(month) {
     var getDL;
     for (var i = 0; i < ALObj.length; i++) {
         var anEvent = ALObj[i];
-        getDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear);
+        // The first day is 23/12, this belong to previous year
         if (i == 0) {
-            // The first day is 23/12, this belong to previous year
             getDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear - 1);
+        } else {
+            getDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear);
         }
         // If has AL events in month
         if (getDL[1] == month) {
@@ -272,14 +294,14 @@ function ALtoDL(month) {
     }
     return ALarr;
 }
-// Print events	
+// Print events 
 function getEvent(month) {
     /*Create an Array include 3 value: index, date, month of ALObj[month+1] which convert to DL 
     E.g in array:
-     	0, 12, 2    // [0],[1],[2]
-    	1, 31, 10	// [3],[4],[5]
-    	5, 23, 1    // [6],[7],[8] 
-    	........	.......
+        0, 12, 2    // [0],[1],[2]
+        1, 31, 10   // [3],[4],[5]
+        5, 23, 1    // [6],[7],[8] 
+        ........    .......
     Each block include 3 value, then i have to * 3 to jump to next data blocks
     */
     var getALArr = ALtoDL(month + 1);

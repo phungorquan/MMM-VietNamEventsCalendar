@@ -161,7 +161,7 @@ var DLObj = [
         evTitle: "Lễ Giáng Sinh"
     }]
 ];
-// Lunar date and specialEvents will be added in findSpecialDay()
+// Lunar date
 var ALObj = [{
     evDate: "23",
     evMonth: "12",
