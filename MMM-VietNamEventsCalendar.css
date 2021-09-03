@@ -25,6 +25,13 @@
   letter-spacing: 0.5px;
 }
 
+.indicatorPages {
+  font-family: "Courier New", monospace;
+  font-style: italic;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+}
+
 .separateLine{
   border-bottom: 0px solid #666;
   opacity: 0.7;
@@ -37,7 +44,7 @@
   color: white;
 
   margin-top: 5px;
-  width: 180px;
+  width: 150px;
   height: 30px;
   opacity: 0.7;
   display: inline-block;

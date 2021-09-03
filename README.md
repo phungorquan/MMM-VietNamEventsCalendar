@@ -46,9 +46,10 @@ To use this module, add below config into the modules array in the `config/confi
 | `fetchInterval`      | `int`  | `1000` - `86400000`     | `60000` (1')             | How often does the content needs to be fetched? (Milliseconds). |
 | `animationSpeed`     | `int`  | `0` - `5000`            | `500` (0.5s)             | Speed of the update animation. (Milliseconds). |
 | `tableClass`         | `String` | `xsmall`, `small`, `medium`, `large`, `xlarge`   | `xsmall` | Name of the classes from `main.css`. |
+| `displayPageIndicator`   | `bool` | `true`, `false`    | `true`                  | Display page indicator to inform user which page they are standing (current page / last page). |
 | `displaySwitchBtn`   | `bool` | `true`, `false`    | `true`                  | Display button to switch calendars (pre/next). |
-| `displayCalendarAfterInterval`  | `bool` | `true`, `false`    | `true`       | Allow display to a calendar after `fetchInterval`. |
-| `calendarAfterInterval`         | `int` | `0` - (google calendar quantity + 2) | `0` (All calendars) | Display at calendar after `fetchInterval`. |
+| `displayCalendarAfterInterval`  | `bool` | `true`, `false`    | `true`       | Allow display to a page after `fetchInterval`. |
+| `calendarAfterInterval`         | `int` | `0` - (google calendar quantity + 2) | `0` (All calendars) | Display at page after `fetchInterval`. |
 | `displayEndTime`     | `bool` | `true`, `false`    | `true`                  | Allow display end time of google calender events. |
 | `dateEndFormat`      | `String`  |See [Moment.js](https://momentjs.com/docs/#/parsing/string-format/) | `"LT(DD/MM)"`  | Format to use for the date of events when using absolute dates. (version <= 2.16.0) From version 2.16.0, this option will be used to format absolute and relative dates. (e.g. DD/MM/YY to change from the default MM/DD/YYYY). |
 | `colored`            | `bool` | `true`, `false`    | `true`                    | Allow color google calendar events. |
