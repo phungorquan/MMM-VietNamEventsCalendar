@@ -1,10 +1,17 @@
-## MODULE: VietNamEventsCalendar
+# MMM-VietNamEventsCalendar
+- This module will display your google calendar, VietNam events and your personal events
+
+## SCREENSHOT
+
 ![image](resources/MMM-VietNamEventsCalendar.png)
 
-- This module will display your personal google calendar and VietNam events or your events
-- We can edit VietNam events in VietNamCal.js
+## INSTALLATION
+```
+cd ~/MagicMirror/modules
+git clone https://github.com/phungorquan/MMM-VietNamEventsCalendar.git
+```
 
-## DEFAULT CONFIG:
+## DEFAULT CONFIG
 To use this module, add below config into the modules array in the `config/config.js` file.
 
 ```js
@@ -85,6 +92,19 @@ The following is the list of notifications that MMM-pages will handle:
 | `PREVIOUS_CALENDAR`      | *None* | Switch to next calendar. |
 | `NEXT_CALENDAR`          | *None* | Switch to previous calendar. |
 | `SWITCH_TO_ALL_CALENDAR` | *None* | Switch to page which include all calendars. |
+
+## FILES DESCRIPTION
+
+| Files and folders | Description |
+| --- | --- |
+|`include/VietNamEvents.js`| Edit VietNam events |
+|`resources`| Contain resource file (.mp3, .png) |
+|`src/calendarfetcher.js`| Fetch google calendar (I copied from module `calendar`) |
+|`src/UtilsChecking.js`| Contain functions to check calendars (personal calendar, google calendar) |
+|`src/VietNamCal.js`| Contain functions to process DL,AL,... |
+|`translation/vi.json`| Translation files |
+|`MMM-VietNamEventsCalendar.css` | Contain layout definition of elements |
+|`MMM-VietNamEventsCalendar.js` | Handle module |
 
 ## EVENTS:
 1. Tết Dương lịch
