@@ -318,6 +318,9 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
             for (var i = 0; i < maxEventQuantity; i++) {
                 var eventArr = getVNEvent[i];
+                if (eventArr.hasOwnProperty("evShow")) {
+                    if (!eventArr.evShow) continue;
+                }
                 var getLunarInfo = getLunarDate(parseInt(eventArr.evDate), parseInt(eventArr.evMonth), getYear);
                 var getLunarDay = ("0" + getLunarInfo.day).slice(-2);
                 var getLunarMonth = ("0" + getLunarInfo.month).slice(-2);

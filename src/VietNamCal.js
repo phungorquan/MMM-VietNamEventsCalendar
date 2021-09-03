@@ -173,7 +173,7 @@ function getYearCanChi(year) {
  * @param {string} title, Title of event
  * @returns {Array Object [{}]} - An array object DLObj was sorted with new event
  */
-function addEventToDL(dayOfEvent, monthOfEvent, title) {
+function addEventToDL(dayOfEvent, monthOfEvent, title, isShow = true) {
     var monthArr = monthOfEvent - 1;
     var lengthOfMonthArr = DLObj[monthArr].length + 1;
     var indexDL = 0;
@@ -188,6 +188,7 @@ function addEventToDL(dayOfEvent, monthOfEvent, title) {
                 // If DL > eventDate, -> add eventDate first
                 if (anEvent.evDate > dayOfEvent) {
                     tmpArr.push({
+                        evShow: isShow,
                         evDate: ("0" + dayOfEvent).slice(-2),
                         evMonth: ("0" + monthOfEvent).slice(-2),
                         evTitle: title
@@ -209,6 +210,7 @@ function addEventToDL(dayOfEvent, monthOfEvent, title) {
         // If there is only 1 event in DLObj but your custom event larger than it
         else {
             tmpArr.push({
+                evShow: isShow,
                 evDate: ("0" + dayOfEvent).slice(-2),
                 evMonth: ("0" + monthOfEvent).slice(-2),
                 evTitle: title
@@ -281,7 +283,7 @@ function addALObjtoDLObj() {
         } else {
             afterConvertToDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear);
         }
-        DLObj[afterConvertToDL[1] - 1] = addEventToDL(afterConvertToDL[0], afterConvertToDL[1], anEvent.evTitle);
+        DLObj[afterConvertToDL[1] - 1] = addEventToDL(afterConvertToDL[0], afterConvertToDL[1], anEvent.evTitle, anEvent.evShow);
     }
 }
 /**
