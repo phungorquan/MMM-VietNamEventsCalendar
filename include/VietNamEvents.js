@@ -171,7 +171,7 @@ var ALObj = [{
     evMonth: "01",
     evTitle: "Mùng 1 Tết Nguyên Đán"
 }, {
-    evData: "02",
+    evDate: "02",
     evMonth: "01",
     evTitle: "Mùng 2 Tết Nguyên Đán"
 }, {

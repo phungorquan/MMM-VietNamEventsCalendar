@@ -41,9 +41,9 @@ Module.register("MMM-VietNamEventsCalendar", {
         displayLunarDate: true,
         displayPersonalEvents: true,
         personalDateEvent: [{
-            day: 14,
-            month: 8,
-            title: "After ghost day :D",
+            day: 7,
+            month: 7,
+            title: "Xiu's birth day",
         }]
     },
     // Define required css.
@@ -72,10 +72,10 @@ Module.register("MMM-VietNamEventsCalendar", {
     getHeader: function() {
         var result = "";
         if (ns_VNCal.currentCalIndex == 0) {
-            result = this.translate("ALL EVENTS ARE COMING");
+            result = this.translate("ALL_EVENTS_ARE_COMING");
         } else {
             if (this.config.displayLunarEvents && ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1) {
-                result = this.translate("LUNAR CALENDAR");
+                result = this.translate("VIETNAM_EVENTS");
             }
             // Display title at screen which have correspondingly google calendars 
             else {
@@ -96,6 +96,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         return result;
     },
     start: function() {
+        initVietNamEvents(this);
         this.addPersonalEvents();
         if (ns_VNCal.numOfUrls == 0) { // This condition will avoid do too much time when re-invoke start())
             Log.log("Starting module: " + this.name);
@@ -105,10 +106,10 @@ Module.register("MMM-VietNamEventsCalendar", {
                     LT: "HH:mm"
                 },
                 calendar: {
-                    sameDay: '[Hôm nay, ]DD/MM[<br>]LT',
-                    nextDay: '[Ngày mai, ]DD/MM[<br>]LT',
+                    sameDay: '[' + this.translate("TODAY") + ', ]DD/MM[<br>]LT',
+                    nextDay: '[' + this.translate("TOMORROW") + ', ]DD/MM[<br>]LT',
                     nextWeek: 'dd[,] DD/MM [<br>]LT',
-                    lastDay: '[Hôm qua ]LT',
+                    lastDay: '[' + this.translate("YESTERDAY") + ' ]LT',
                     lastWeek: 'dddd [rồi ]LT',
                     sameElse: 'L'
                 },
@@ -188,7 +189,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         wrapper.className = this.config.tableClass;
         if (events.length === 0) {
             if (this.loaded) {
-                wrapper.innerHTML = this.translate("EMPTYPERSONALCALENDAR") + "<br>";
+                wrapper.innerHTML = this.translate("EMPTY_PERSONAL_CALENDAR") + "<br>";
             } else {
                 // Only show loading when there is not Lunar Calendars
                 if (ns_VNCal.numOfUrls > 0) {
@@ -270,7 +271,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                 wrapper.appendChild(eventWrapper);
                 // Location
                 if (this.config.showLocation) {
-                    var myLocation = this.translate("No location");
+                    var myLocation = this.translate("NO_LOCATION");
                     if (event.location !== false) {
                         myLocation = event.location;
                     }
@@ -310,7 +311,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         if (this.config.displayLunarEvents && (ns_VNCal.currentCalIndex == 0 || ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1)) {
             var getNow = new Date();
             var getYear = getNow.getFullYear();
-            var getVNEvent = getEvent(getNow.getMonth());
+            var getVNEvent = DLObj[getNow.getMonth()];
             var maxEventQuantity = getVNEvent.length;
             if (this.config.maximumEntries <= maxEventQuantity) {
                 maxEventQuantity = this.config.maximumEntries

@@ -3,16 +3,16 @@
 	"TODAY": "Hôm nay",
 	"TOMORROW": "Ngày mai",
 	"DAYAFTERTOMORROW": "Ngày mốt",
+	"YESTERDAY": "Hôm qua",
 	"RUNNING": "Đang diễn ra, còn ",
-	"EMPTYPERSONALCALENDAR": "Chưa có sự kiện cá nhân nào",
-	"EMPTY": "Chưa có sự kiện nào",
-	"WEEK": "Tuần {weekNumber}",
-	"SWITCH CALENDARS" : "ĐỔI LỊCH KHÁC",
-	"No location" : "Chưa có địa điểm",
-	"ALL EVENTS ARE COMING" : "CÁC SỰ KIỆN",
-	"MY EVENTS" : "CÁC SỰ KIỆN SẮP DIỄN RA CỦA TÔI",
+	"EMPTY_PERSONAL_CALENDAR": "Chưa có sự kiện cá nhân nào",
+	"NO_LOCATION" : "Chưa có địa điểm",
+	"ALL_EVENTS_ARE_COMING" : "CÁC SỰ KIỆN",
 	"EVENT OF - " : "SỰ KIỆN CỦA ",
-	"LUNAR CALENDAR": "CÁC NGÀY LỄ TRONG THÁNG",
-	"ERROR DATABASE": "LỖI - VUI LÒNG TẢI LẠI HỆ THỐNG"
+	"LUNAR VIETNAM_EVENTS": "CÁC NGÀY LỄ TRONG THÁNG",
+	"EASTER_DAY": "Lễ Phục Sinh",
+	"MOTHER_DAY": "Ngày của Mẹ",
+	"FATHER_DAY": "Ngày của Cha",
+	"THANKS_GIVING_DAY": "Lễ tạ ơn"
 }
 

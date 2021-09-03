@@ -218,9 +218,11 @@ function addEventToDL(dayOfEvent, monthOfEvent, title) {
     return tmpArr;
 }
 /**
- * Add special events which not a static day
+ * Add special events which not a static day to DLObj 
+ *
+ * @param {pointer} self, Get scope of module to access module functions
  */
-function addSpecialDay() {
+function addSpecialDay(self) {
     var motherMonth = 5;
     var fatherMonth = 6;
     var thanksGVMonth = 11;
@@ -244,128 +246,50 @@ function addSpecialDay() {
         L = I - J,
         getMonthEASTER = 3 + f((L + 40) / 44),
         getDayEASTER = L + 28 - 31 * f(getMonthEASTER / 4);
-    DLObj[getMonthEASTER - 1] = addEventToDL(getDayEASTER, getMonthEASTER, "-Lễ Phục Sinh");
+    DLObj[getMonthEASTER - 1] = addEventToDL(getDayEASTER, getMonthEASTER, self.translate("EASTER_DAY"));
     // MOTHER DAY, FATHER DAY, THANKS GIVING, BLACK FRIDAY
     for (var i = 1; i <= 31; i++) {
         if (TUAN[(jdn2date(jdn(i, motherMonth, getYear))[3] + 1) % 7] == "CN" && counterMother != 2) {
             counterMother++;
-            if (counterMother == 2) DLObj[motherMonth - 1] = addEventToDL(i, motherMonth, "-Ngày của Mẹ");
+            if (counterMother == 2) DLObj[motherMonth - 1] = addEventToDL(i, motherMonth, self.translate("MOTHER_DAY"));
         }
         if (TUAN[(jdn2date(jdn(i, fatherMonth, getYear))[3] + 1) % 7] == "CN" && counterFather != 3) {
             counterFather++;
-            if (counterFather == 3) DLObj[fatherMonth - 1] = addEventToDL(i, fatherMonth, "-Ngày của Cha");
+            if (counterFather == 3) DLObj[fatherMonth - 1] = addEventToDL(i, fatherMonth, self.translate("FATHER_DAY"));
         }
         if (TUAN[(jdn2date(jdn(i, thanksGVMonth, getYear))[3] + 1) % 7] == "T5" && counterThanksGV != 4) {
             counterThanksGV++;
             if (counterThanksGV == 4) {
-                DLObj[thanksGVMonth - 1] = addEventToDL(i, thanksGVMonth, "-Lễ tạ ơn");
-                DLObj[thanksGVMonth - 1] = addEventToDL(i + 1, thanksGVMonth, "-BlackFriday");
+                DLObj[thanksGVMonth - 1] = addEventToDL(i, thanksGVMonth, self.translate("THANKS_GIVING_DAY"));
+                DLObj[thanksGVMonth - 1] = addEventToDL(i + 1, thanksGVMonth, "BlackFriday");
             }
         }
     }
 }
-addSpecialDay();
 /**
- * Convert AL(Lunar) to DL(Solar), respectively
- *
- * @param {int} month, Current month
- * @returns {Array []} - An array with set of 3 values [index1,date1,month1,index2,date2,month2,...]
+ * Add ALObj to DLObj
  */
-function ALtoDL(month) {
-    var ALarr = [];
+function addALObjtoDLObj() {
+    var afterConvertToDL = [];
     var now = new Date();
     var getYear = now.getFullYear();
-    var getDL;
     for (var i = 0; i < ALObj.length; i++) {
         var anEvent = ALObj[i];
-        // The first day is 23/12, this belong to previous year
+        // 23/12, day in the previous year
         if (i == 0) {
-            getDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear - 1);
+            afterConvertToDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear - 1);
         } else {
-            getDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear);
+            afterConvertToDL = getSolarDate(parseInt(anEvent.evDate), parseInt(anEvent.evMonth), getYear);
         }
-        // If has AL events in month
-        if (getDL[1] == month) {
-            // Create an array with 3 value: index, date, month 
-            ALarr.push(i);
-            ALarr.push(("0" + getDL[0]).slice(-2));
-            ALarr.push(("0" + getDL[1]).slice(-2));
-        }
+        DLObj[afterConvertToDL[1] - 1] = addEventToDL(afterConvertToDL[0], afterConvertToDL[1], anEvent.evTitle);
     }
-    return ALarr;
 }
-// Print events 
-function getEvent(month) {
-    /*Create an Array include 3 value: index, date, month of ALObj[month+1] which convert to DL 
-    E.g in array:
-        0, 12, 2    // [0],[1],[2]
-        1, 31, 10   // [3],[4],[5]
-        5, 23, 1    // [6],[7],[8] 
-        ........    .......
-    Each block include 3 value, then i have to * 3 to jump to next data blocks
-    */
-    var getALArr = ALtoDL(month + 1);
-    var getALArrLength = 0;
-    var indexDL = 0;
-    var indexAL = 0;
-    var tmpArr = [];
-    // If ALObj[month] does not has any events
-    if (getALArr.length == 0) {
-        for (var i = 0; i < DLObj[month].length; i++) {
-            var anEvent = DLObj[month][i]; // [date/month],[title]
-            tmpArr.push({
-                evDate: anEvent.evDate,
-                evMonth: anEvent.evMonth,
-                evTitle: anEvent.evTitle
-            });
-        }
-    } else {
-        getALArrLength = (getALArr.length / 3);
-        for (var numOfDate = 0; numOfDate < DLObj[month].length + getALArrLength; numOfDate++) {
-            // Check one by one DL in DLObj[month]
-            if (indexDL != DLObj[month].length) {
-                var anEvent = DLObj[month][indexDL];
-                // Compare one by one AL
-                if (indexAL < getALArrLength) {
-                    // If DL > AL -> print AL first
-                    if (parseInt(anEvent.evDate) > parseInt(getALArr[indexAL * 3 + 1])) {
-                        tmpArr.push({
-                            evDate: ("0" + getALArr[indexAL * 3 + 1]).slice(-2),
-                            evMonth: ("0" + getALArr[indexAL * 3 + 2]).slice(-2),
-                            evTitle: ALObj[getALArr[indexAL * 3]].evTitle
-                        });
-                        indexAL++;
-                    }
-                    // Else print DL after
-                    else {
-                        tmpArr.push({
-                            evDate: anEvent.evDate,
-                            evMonth: anEvent.evMonth,
-                            evTitle: anEvent.evTitle
-                        });
-                        indexDL++;
-                    }
-                }
-                // If done, then just print DL
-                else {
-                    tmpArr.push({
-                        evDate: anEvent.evDate,
-                        evMonth: anEvent.evMonth,
-                        evTitle: anEvent.evTitle
-                    });
-                    indexDL++;
-                }
-            }
-            // If done DL, -> just print AL
-            else {
-                tmpArr.push({
-                    evDate: ("0" + getALArr[indexAL * 3 + 1]).slice(-2),
-                    evMonth: ("0" + getALArr[indexAL * 3 + 2]).slice(-2),
-                    evTitle: ALObj[getALArr[indexAL * 3]].evTitle
-                });
-                indexAL++;
-            }
-        }
-    }
-    return tmpArr;
+/**
+ * Init VietNam events (special days, AL days)
+ *
+ * @param {pointer} self, Get scope of module to access module functions
+ */
+function initVietNamEvents(self) {
+    addSpecialDay(self);
+    addALObjtoDLObj();
 }
