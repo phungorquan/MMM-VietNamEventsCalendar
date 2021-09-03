@@ -75,7 +75,7 @@ Module.register("MMM-VietNamEventsCalendar", {
             result = this.translate("ALL_EVENTS_ARE_COMING");
         } else {
             if (this.config.displayLunarEvents && ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1) {
-                result = this.translate("VIETNAM_EVENTS");
+                result = this.translate("LUNAR_VIETNAM_EVENTS");
             }
             // Display title at screen which have correspondingly google calendars 
             else {
@@ -189,7 +189,9 @@ Module.register("MMM-VietNamEventsCalendar", {
         wrapper.className = this.config.tableClass;
         if (events.length === 0) {
             if (this.loaded) {
-                wrapper.innerHTML = this.translate("EMPTY_PERSONAL_CALENDAR") + "<br>";
+                if (ns_VNCal.currentCalIndex != ns_VNCal.numOfUrls + 1) {
+                    wrapper.innerHTML = this.translate("EMPTY_PERSONAL_CALENDAR") + "<br>";
+                }
             } else {
                 // Only show loading when there is not Lunar Calendars
                 if (ns_VNCal.numOfUrls > 0) {
@@ -280,17 +282,32 @@ Module.register("MMM-VietNamEventsCalendar", {
                     contentCell.className = "location xsmall";
                     contentCell.colSpan = "2";
                     contentCell.innerHTML = this.titleTransform(myLocation);
-                    // Display a line to separate peronalCal and lunarCal
-                    if (this.config.displayLunarEvents && ns_VNCal.currentCalIndex == 0 && e == events.length - 1) {
-                        var getLine = document.createElement("hr");
-                        getLine.style.border = "0.5px solid #666";
-                        contentCell.appendChild(getLine);
-                    }
                     locationRow.appendChild(contentCell);
                     wrapper.appendChild(locationRow);
                 }
             }
         }
+
+        // Create 2 col span for VietNam events
+        var vnEventsUIRow = document.createElement("tr");
+        var vnEventsUICol = document.createElement("td");
+        vnEventsUICol.colSpan = "2";
+        vnEventsUICol.appendChild(this.loadVietNamEventsUI());
+        vnEventsUIRow.appendChild(vnEventsUICol);
+        wrapper.appendChild(vnEventsUIRow);
+        return wrapper;
+    },
+
+    /**
+     * This func will display VietNam events
+     *
+     * @return {tr} - Rows contain VietNam events
+     *
+     */
+    loadVietNamEventsUI: function ()
+    {
+        var wrapper = document.createElement("tr");
+        // Handle play sound and alert when events are coming
         if (ns_VNCal.titleArr.length != 0 && ns_VNCal.alertOnce) {
             ns_VNCal.alertOnce = false;
             var combineEventName = ""
@@ -309,6 +326,17 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         // VIETNAM EVENTS
         if (this.config.displayLunarEvents && (ns_VNCal.currentCalIndex == 0 || ns_VNCal.currentCalIndex == ns_VNCal.numOfUrls + 1)) {
+            // Display a line to separate peronalCal and lunarCal
+            if (ns_VNCal.currentCalIndex == 0) {
+                var separateRow = document.createElement("tr");
+                var separateCell = document.createElement("td");
+                separateCell.colSpan = "2";
+                var getLine = document.createElement("hr");
+                getLine.className = "separateLine";
+                separateCell.appendChild(getLine);
+                separateRow.appendChild(separateCell);
+                wrapper.appendChild(separateRow);
+            }
             var getNow = new Date();
             var getYear = getNow.getFullYear();
             var getVNEvent = DLObj[getNow.getMonth()];
@@ -368,6 +396,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         }
         return wrapper;
     },
+
     // Switch calendar from external notification
     notificationReceived: function(notification, payload, sender) {
         if (notification == "PREVIOUS_CALENDAR") {
