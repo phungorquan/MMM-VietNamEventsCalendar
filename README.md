@@ -11,6 +11,21 @@ cd ~/MagicMirror/modules
 git clone https://github.com/phungorquan/MMM-VietNamEventsCalendar.git
 ```
 
+## UPDATE
+**YOU NEED TO SAVE YOUR ALL CHANGES BEFORE UPDATE**
+- Use 'gitk' to show what you changed with UI git
+- You have to download gitk with command: `sudo apt install gitk` before use gitk
+
+
+**UPDATE COMMANDS**
+```
+git reset --hard HEAD
+git pull
+```
+
+Now you can copy your change into new version :D
+
+
 ## DEFAULT CONFIG
 To use this module, add below config into the modules array in the `config/config.js` file.
 
@@ -19,7 +34,6 @@ To use this module, add below config into the modules array in the `config/confi
     module: "MMM-VietNamEventsCalendar",
     position: "top_left",
     config: {
-        maximumEntries: 10,
         lunarColor: "LightGreen",
         calendars: [
 	{
@@ -29,7 +43,7 @@ To use this module, add below config into the modules array in the `config/confi
         }, 
 	{
             url: "https://calendar.google.com/calendar/ical/quan.ng0anhin98%40gmail.com/public/basic.ics",
-            color: "PowderBlue",
+            color: "Yellow",
             name: "Google lịch của quan.ng0anhin98 nè"
         }],
         personalDateEvent:[
@@ -49,20 +63,22 @@ To use this module, add below config into the modules array in the `config/confi
 | `maximumNumberOfDays`      | `int` | `365`, `366`       | `365`                    | The maximum number of days in the future. |
 | `maxTitleLength`           | `int` | `10` - `50`        | `20`                     | The maximum title length. |
 | `maxTitleLines`            | `int` | `0` - `10`         | `3`                      | The maximum number of lines a title will wrap vertically before being cut (Only enabled if `wrapEvents` is also enabled). |
-| `wrapEvents`               | `bool` | `true`, `false`    | `true`                   | Wrap event titles to multiple lines. Breaks lines at the length defined by `maxTitleLength`. |
+| `wrapEvents`         | `bool` | `true`, `false`         | `true`                   | Wrap event titles to multiple lines. Breaks lines at the length defined by `maxTitleLength`. |
 | `fetchInterval`      | `int`  | `1000` - `86400000`     | `60000` (1')             | How often does the content needs to be fetched? (Milliseconds). |
 | `animationSpeed`     | `int`  | `0` - `5000`            | `500` (0.5s)             | Speed of the update animation. (Milliseconds). |
 | `tableClass`         | `String` | `xsmall`, `small`, `medium`, `large`, `xlarge`   | `xsmall` | Name of the classes from `main.css`. |
-| `displayPageIndicator`   | `bool` | `true`, `false`    | `true`                  | Display page indicator to inform user which page they are standing (current page / last page). |
-| `displaySwitchBtn`   | `bool` | `true`, `false`    | `true`                  | Display button to switch calendars (pre/next). |
-| `displayCalendarAfterInterval`  | `bool` | `true`, `false`    | `true`       | Allow display to a page after `fetchInterval`. |
-| `calendarAfterInterval`         | `int` | `0` - (google calendar quantity + 2) | `0` (All calendars) | Display at page after `fetchInterval`. |
+| `displayPageIndicator`   | `bool` | `true`, `false`    | `true`              | Display page indicator to inform user which page they are standing (current page / last page). |
+| `displaySwitchBtn`       | `bool` | `true`, `false`    | `true`              | Display button to switch calendars (pre/next). |
+| `moveToPageAfterInterval`| `bool` | `true`, `false`    | `true`              | Allow display to a page after `fetchInterval`. |
+| `pageAfterInterval`      | `int` | `0` - (google calendar quantity + 1) | `0` (All - first page) | Display at page after `fetchInterval`. This number follow Array[] rule, start at index 0 |
 | `displayEndTime`     | `bool` | `true`, `false`    | `true`                  | Allow display end time of google calender events. |
 | `dateEndFormat`      | `String`  |See [Moment.js](https://momentjs.com/docs/#/parsing/string-format/) | `"LT(DD/MM)"`  | Format to use for the date of events when using absolute dates. (version <= 2.16.0) From version 2.16.0, this option will be used to format absolute and relative dates. (e.g. DD/MM/YY to change from the default MM/DD/YYYY). |
 | `colored`            | `bool` | `true`, `false`    | `true`                    | Allow color google calendar events. |
 | `defaultColor`       | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5)) | `"White"`                   | Default color of Google Calendar events. |
-| `showLocation`       | `bool` | `true`, `false`    | `true`                    | Allow show location of google calendar events. |
-| `lunarColor`         | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5)) | `"LightGreen"`                     | Color of VietNam, Personal events. |
+| `alertSoundFile`     | `String` | See in `resources` folder  | `ClearAnnouce.wav` | Sound alert files will be played when event is coming. See files in `resources` folder or download [here](https://mixkit.co/free-sound-effects/notification/) |
+| `alertSoundTimer`       | `int` | `1000` - `86400000` | `5000` (5s)               | Timer to play alert sound and show notification |
+| `displayLocation`       | `bool` | `true`, `false`    | `true`                    | Allow show location of google calendar events. |
+| `lunarColor`            | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5)) | `"LightGreen"`                     | Color of VietNam, Personal events. |
 | `displayLunarEvents`    | `bool` | `true`, `false`    | `true`                     | Display VietNam, Personal events. |
 | `displayLunarDate`      | `bool` | `true`, `false`    | `true`                     | Display VietNam, Personal lunar time. |
 | `displayPersonalEvents` | `bool` | `true`, `false`    | `true`                     | Display Personal events. |
@@ -98,7 +114,7 @@ The following is the list of notifications that MMM-pages will handle:
 | Files and folders | Description |
 | --- | --- |
 |`include/VietNamEvents.js`| Edit VietNam events |
-|`resources`| Contain resource file (.mp3, .png) |
+|`resources`| Contain resource file (.wav, .png) |
 |`src/calendarfetcher.js`| Fetch google calendar (I copied from module `calendar`) |
 |`src/UtilsChecking.js`| Contain functions to check calendars (personal calendar, google calendar) |
 |`src/VietNamCal.js`| Contain functions to process DL,AL,... |

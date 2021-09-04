@@ -25,8 +25,8 @@ Module.register("MMM-VietNamEventsCalendar", {
         tableClass: "xsmall",
         displayPageIndicator: true, // Page indicator text not follow array[] rule
         displaySwitchBtn: true, // Display button to switch between calendars
-        displayCalendarAfterInterval: true, // Allow switch to page 'calendarAfterInterval' after 'fetchInterval'
-        calendarAfterInterval: 0, // Follow array rule, 0(All - first page), 1(first google calendar),...(last page - VietNam events)
+        moveToPageAfterInterval: true, // Allow switch to page 'pageAfterInterval' after 'fetchInterval'
+        pageAfterInterval: 0, // Follow array rule, 0(All - first page), 1(first google calendar),...(last page - VietNam events)
         displayEndTime: true, // Display end time of event
         dateEndFormat: "LT(DD/MM)", // end time format
         colored: true, // Allow color google calendars from 'calendar.color'
@@ -140,9 +140,9 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // Trigger ADD_CALENDAR every fetchInterval to make sure there is always a calendar
                 // fetcher running on the server side.
             }
-            if (self.config.displayCalendarAfterInterval) {
-                if (self.config.calendarAfterInterval <= ns_VNCal.numOfUrls) {
-                    ns_VNCal.currentPage = self.config.calendarAfterInterval;
+            if (self.config.moveToPageAfterInterval) {
+                if (self.config.pageAfterInterval <= ns_VNCal.numOfUrls) {
+                    ns_VNCal.currentPage = self.config.pageAfterInterval;
                 } else {
                     ns_VNCal.currentPage = 0;
                     console.log("Please input correctly calendar page, Remember minus 1 because it's not follow Array[] rule");
@@ -320,7 +320,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         var wrapper = document.createElement("tr");
         // Handle play sound and alert when events are coming
         if (ns_VNCal.titleArr.length != 0 && ns_VNCal.alertOnce) {
-            console.log("ALERT EVENT IS COMMING");
+            console.log("ALERT EVENT IS COMING");
             // Disable re-invoked too much time
             ns_VNCal.alertOnce = false;
             // Stop currently audio
