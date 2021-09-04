@@ -39,12 +39,12 @@ To use this module, add below config into the modules array in the `config/confi
 	{
             url: "https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics",
             color: "Violet",
-            name: "Google lịch của anhquantong77 nha"
+            title: "Google lịch của anhquantong77 nha"
         }, 
 	{
             url: "https://calendar.google.com/calendar/ical/quan.ng0anhin98%40gmail.com/public/basic.ics",
             color: "Yellow",
-            name: "Google lịch của quan.ng0anhin98 nè"
+            title: "Google lịch của quan.ng0anhin98 nè"
         }],
         personalDateEvent:[
         {
