@@ -10,7 +10,8 @@ var ns_VNCal = {
     arrUrls: [], // Save all urls
     titleArr: [], // Save all event title to send notification once
     alertOnce: true, // Flag to support titleArr above
-    currentPage: 0
+    currentPage: 0,
+    audio: {}
 };
 Module.register("MMM-VietNamEventsCalendar", {
     defaults: {
@@ -18,27 +19,29 @@ Module.register("MMM-VietNamEventsCalendar", {
         maximumNumberOfDays: 365,
         maxTitleLength: 20,
         maxTitleLines: 3,
-        wrapEvents: true, // wrap events to multiple lines breaking at maxTitleLength
-        fetchInterval: 1 * 60 * 1000, // Update every 1 minutes.
-        animationSpeed: 500,
+        wrapEvents: true, // Wrap events to multiple lines breaking at 'maxTitleLength'
+        fetchInterval: 1 * 60 * 1000, // Update every minute.
+        animationSpeed: 500, // Animation speed when switch page
         tableClass: "xsmall",
-        displayPageIndicator: true,
+        displayPageIndicator: true, // Page indicator text not follow array[] rule
         displaySwitchBtn: true, // Display button to switch between calendars
-        displayCalendarAfterInterval: true,
-        calendarAfterInterval: 0, // 0(All), 1(first google calendar),...
-        displayEndTime: true,
-        dateEndFormat: "LT(DD/MM)",
-        colored: true,
-        defaultColor: "White",
-        showLocation: true,
+        displayCalendarAfterInterval: true, // Allow switch to page 'calendarAfterInterval' after 'fetchInterval'
+        calendarAfterInterval: 0, // Follow array rule, 0(All - first page), 1(first google calendar),...(last page - VietNam events)
+        displayEndTime: true, // Display end time of event
+        dateEndFormat: "LT(DD/MM)", // end time format
+        colored: true, // Allow color google calendars from 'calendar.color'
+        defaultColor: "White", // Default color of google calendars if didn't input 'calendar.color'
+        alertSoundFile: "ClearAnnouce.wav", // Sound files, please check in resources/ to know what we have
+        alertSoundTimer: 1 * 5 * 1000, // Audio will be repeated and alert will be displayed in 5sec
+        displayLocation: true,
         calendars: [{
             url: "",
             color: "",
             title: ""
         }],
-        lunarColor: "LightGreen",
+        lunarColor: "LightGreen", // VietNam events color
         displayLunarEvents: true,
-        displayLunarDate: true,
+        displayLunarDate: true, // Alow display lunar date
         displayPersonalEvents: true,
         personalDateEvent: [{
             day: 7,
@@ -80,16 +83,20 @@ Module.register("MMM-VietNamEventsCalendar", {
             // Display title at screen which have correspondingly google calendars 
             else {
                 var myAvailableElement = ns_VNCal.currentPage - 1; // We need to minus by 1 when using with arr[]
-                // If user has input field "name"
+                // If user has input field "title"
                 if (this.config.calendars[myAvailableElement].hasOwnProperty("title")) {
-                    result = this.config.calendars[myAvailableElement].title;
+                    if (this.config.calendars[myAvailableElement].title.length != 0) {
+                        result = this.config.calendars[myAvailableElement].title;
+                    } else {
+                        // E.g: https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics
+                        // -> anhquantong77
+                        var str = ns_VNCal.arrUrls[myAvailableElement];
+                        var pattern = /ical\/[^%]*/i;
+                        var getGmailAccount = str.match(pattern).toString().replace("ical/", "");
+                        result = this.translate("EVENT OF - ") + getGmailAccount;
+                    }
                 } else {
-                    // E.g: https://calendar.google.com/calendar/ical/anhquantong77%40gmail.com/public/basic.ics
-                    // -> anhquantong77
-                    var str = ns_VNCal.arrUrls[myAvailableElement];
-                    var pattern = /ical\/[^%]*/g;
-                    var getGmailAccount = str.match(pattern);
-                    result = this.translate("EVENT OF - ") + getGmailAccount;
+                    result = this.translate("EMPTY_CALENDAR_TITLE");
                 }
             }
         }
@@ -97,6 +104,7 @@ Module.register("MMM-VietNamEventsCalendar", {
     },
     start: function() {
         initVietNamEvents(this);
+        ns_VNCal.audio = new Audio('modules/MMM-VietNamEventsCalendar/resources/' + this.config.alertSoundFile);
         this.addPersonalEvents();
         if (ns_VNCal.numOfUrls == 0) { // This condition will avoid do too much time when re-invoke start())
             Log.log("Starting module: " + this.name);
@@ -133,13 +141,13 @@ Module.register("MMM-VietNamEventsCalendar", {
                 // fetcher running on the server side.
             }
             if (self.config.displayCalendarAfterInterval) {
-                if (self.config.calendarAfterInterval <= ns_VNCal.numOfUrls + 1) {
+                if (self.config.calendarAfterInterval <= ns_VNCal.numOfUrls) {
                     ns_VNCal.currentPage = self.config.calendarAfterInterval;
                 } else {
-                    console.log("Can not back to calendar because you input wrong calendar page");
+                    ns_VNCal.currentPage = 0;
+                    console.log("Please input correctly calendar page, Remember minus 1 because it's not follow Array[] rule");
                 }
             }
-            ns_VNCal.titleArr = [];
         }, self.config.fetchInterval); // Update calendar every fetchInterval minnute
         if (isCalendarsAvailable(this.config)) {
             ns_VNCal.numOfUrls = this.config.calendars.length; // Get numOfUrls
@@ -155,7 +163,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         this.loaded = false;
     },
     /**
-     * This func will add personal events from personalDateEvent{} into Lunar array to display in month
+     * This func will add personal events from personalDateEvent{} into Solar array to display in month
      *
      */
     addPersonalEvents: function() {
@@ -176,9 +184,8 @@ Module.register("MMM-VietNamEventsCalendar", {
             Log.error("Calendar Error. Could not fetch calendar: " + payload.url);
             this.loaded = true;
         } else if (notification === "INCORRECT_URL") {
-            // Check whether myUrl is DUMMY(self-defined) or Wrong(wrong url input)
-            if (payload.url != "DUMMY HIDEN") {
-                if (isCalendarsAvailable(this.config)) Log.error("Calendar Error. Incorrect url: " + payload.url);
+            if (isCalendarsAvailable(this.config)) {
+                Log.error("Calendar Error. Incorrect url: " + payload.url);
             }
         }
         this.updateDom(this.config.animationSpeed);
@@ -210,11 +217,15 @@ Module.register("MMM-VietNamEventsCalendar", {
                 if (ns_VNCal.currentPage != 0) {
                     if (event.url != ns_VNCal.arrUrls[ns_VNCal.currentPage - 1]) continue;
                 }
-                // Color calendars
+                // Color calendars, if user not input 'color' -> get 'defaultColor'
                 for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
                     if (event.url === ns_VNCal.arrUrls[i]) {
-                        if (this.config.calendars[i].hasOwnProperty("color") && this.config.colored) {
-                            eventWrapper.style.color = this.config.calendars[i].color;
+                        if (this.config.colored && this.config.calendars[i].hasOwnProperty("color")) {
+                            if (this.config.calendars[i].color.length != 0) {
+                                eventWrapper.style.color = this.config.calendars[i].color;
+                            } else {
+                                eventWrapper.style.color = this.config.defaultColor;
+                            }
                         } else {
                             eventWrapper.style.color = this.config.defaultColor;
                         }
@@ -251,8 +262,11 @@ Module.register("MMM-VietNamEventsCalendar", {
                                 }
                             }
                             if (!existTitle) {
-                                ns_VNCal.alertOnce = true;
-                                ns_VNCal.titleArr.push(event.title);
+                                // Get calendars and titles
+                                var str = ns_VNCal.arrUrls[e];
+                                var pattern = /ical\/[^%]*/g;
+                                var getGmailAccount = str.match(pattern).toString().replace("ical/", "");
+                                ns_VNCal.titleArr.push(getGmailAccount + ": " + event.title);
                             }
                         }
                     } else {
@@ -272,7 +286,7 @@ Module.register("MMM-VietNamEventsCalendar", {
                 eventWrapper.appendChild(timeWrapper);
                 wrapper.appendChild(eventWrapper);
                 // Location
-                if (this.config.showLocation) {
+                if (this.config.displayLocation) {
                     var myLocation = this.translate("NO_LOCATION");
                     if (event.location !== false) {
                         myLocation = event.location;
@@ -306,20 +320,39 @@ Module.register("MMM-VietNamEventsCalendar", {
         var wrapper = document.createElement("tr");
         // Handle play sound and alert when events are coming
         if (ns_VNCal.titleArr.length != 0 && ns_VNCal.alertOnce) {
+            console.log("ALERT EVENT IS COMMING");
+            // Disable re-invoked too much time
             ns_VNCal.alertOnce = false;
+            // Stop currently audio
+            ns_VNCal.audio.pause();
+            ns_VNCal.audio.loop = true; // Repeated allow
+            ns_VNCal.audio.play();
+            // Set event to repeat sound
+            ns_VNCal.audio.addEventListener('ended', function() {
+                this.currentTime = 0;
+                if (ns_VNCal.audio.loop) {
+                    this.play();
+                }
+            }, false);
+            var self = this;
             var combineEventName = ""
             for (var i = 0; i < ns_VNCal.titleArr.length; i++) {
                 combineEventName += ns_VNCal.titleArr[i] + "<br>";
             }
-            var audio = new Audio('modules/MMM-VietNamEventsCalendar/resources/Alarm.mp3');
-            audio.play();
-            console.log("ALERT EVENT IS COMMING");
+            // Send to display alert
             this.sendNotification("SHOW_ALERT", {
-                type: "alert",
-                title: "<h2>" + combineEventName + "</h2>",
-                message: "EVENT IS COMING",
-                timer: 7000
+                type: "notification",
+                title: '<b>'+ this.translate("EVENT_IS_COMING") + '</b>',
+                message: "<b>" + combineEventName + "</b>",
+                timer: self.config.alertSoundTimer
             });
+            // Delay a time, then reset variables for next alert
+            var intervalAlert = setInterval(function() {
+                clearInterval(intervalAlert);
+                ns_VNCal.alertOnce = true;
+                ns_VNCal.titleArr = [];
+                ns_VNCal.audio.loop = false;
+            }, self.config.alertSoundTimer);
         }
         // VIETNAM EVENTS
         if (this.config.displayLunarEvents && (ns_VNCal.currentPage == 0 || ns_VNCal.currentPage == ns_VNCal.numOfUrls)) {
@@ -383,10 +416,11 @@ Module.register("MMM-VietNamEventsCalendar", {
             preBtn.addEventListener("click", () => this.switchCalendar("PRE"));
             preBtn.className = "calendarSwitchBtn";
             buttonsCell.appendChild(preBtn);
+            // Page indicator
             if (this.config.displayPageIndicator) {
                 var indicatorPages = document.createElement("span");
                 indicatorPages.className = "indicatorPages bold";
-                indicatorPages.innerHTML = " " + ns_VNCal.currentPage + "/" + ns_VNCal.numOfUrls + " ";
+                indicatorPages.innerHTML = " " + parseInt(ns_VNCal.currentPage + 1) + "/" + parseInt(ns_VNCal.numOfUrls + 1) + " ";
                 buttonsCell.appendChild(indicatorPages);
             }
             var nextBtn = document.createElement("BUTTON");
