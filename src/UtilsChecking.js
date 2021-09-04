@@ -8,15 +8,16 @@ function isCalendarsAvailable(configs) {
     if (configs.hasOwnProperty('calendars')) {
         for (var e in configs.calendars) {
             var event = configs.calendars[e];
-            if (!event.hasOwnProperty('url') || !event.hasOwnProperty('color') || !event.hasOwnProperty('title')) {
-                console.log("Please input 'url', 'color', and 'title' into personalDateEvent{}");
+            if (!event.hasOwnProperty('url')) {
+                console.log("Please input 'url', 'color' into personalDateEvent{}");
                 isOK = false;
                 break;
-            }
-            if (event.url == "" || event.color == "" || event.title == "") {
-                console.log("Please input correctly 'url', 'color', and 'title' into personalDateEvent{}");
-                isOK = false;
-                break;
+            } else {
+                if (event.url == "") {
+                    console.log("Please input correctly 'url', 'color' into personalDateEvent{}");
+                    isOK = false;
+                    break;
+                }
             }
         }
     } else {
