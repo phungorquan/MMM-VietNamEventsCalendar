@@ -343,7 +343,7 @@ Module.register("MMM-VietNamEventsCalendar", {
             // Send to display alert
             this.sendNotification("SHOW_ALERT", {
                 type: "notification",
-                title: '<b>'+ this.translate("EVENT_IS_COMING") + '</b>',
+                title: '<b>' + this.translate("EVENT_IS_COMING") + '</b>',
                 message: "<b>" + combineEventName + "</b>",
                 timer: self.config.alertSoundTimer
             });
@@ -408,11 +408,12 @@ Module.register("MMM-VietNamEventsCalendar", {
             }
         }
         // Create switch buttons
-        if (this.config.displaySwitchBtn == true && isCalendarsAvailable(this.config)) {
+        if (this.config.displaySwitchBtn && isCalendarsAvailable(this.config)) {
             var buttonsRow = document.createElement("tr");
             var buttonsCell = document.createElement("td");
             buttonsCell.colSpan = "2";
             var preBtn = document.createElement("BUTTON");
+            var nextBtn = document.createElement("BUTTON");
             preBtn.innerHTML = "<---";
             preBtn.addEventListener("click", () => this.switchCalendar("PRE"));
             preBtn.className = "calendarSwitchBtn";
@@ -424,13 +425,33 @@ Module.register("MMM-VietNamEventsCalendar", {
                 indicatorPages.innerHTML = " " + parseInt(ns_VNCal.currentPage + 1) + "/" + parseInt(ns_VNCal.numOfUrls + 1) + " ";
                 buttonsCell.appendChild(indicatorPages);
             }
-            var nextBtn = document.createElement("BUTTON");
+            else
+            {
+                // If doesn't show indicator, re-set width of buttons for better UI
+                preBtn.style.width = "175px";
+                nextBtn.style.width = "175px";
+            }
             nextBtn.innerHTML = "--->";
             nextBtn.addEventListener("click", () => this.switchCalendar("NEXT"));
             nextBtn.className = "calendarSwitchBtn";
             buttonsCell.appendChild(nextBtn);
             buttonsRow.appendChild(buttonsCell);
             wrapper.appendChild(buttonsRow);
+        }
+        else if (!this.config.displaySwitchBtn && isCalendarsAvailable(this.config))
+        {
+            // Page indicator without buttons
+            if (this.config.displayPageIndicator) {
+                var indicatorRow = document.createElement("tr");
+                var indicatorCell = document.createElement("td");
+                indicatorCell.colSpan = "2";
+                var indicatorPages = document.createElement("BUTTON");
+                indicatorPages.className = "indicatorPagesWithoutSwitchButton";
+                indicatorPages.innerHTML = " " + parseInt(ns_VNCal.currentPage + 1) + "/" + parseInt(ns_VNCal.numOfUrls + 1) + " ";
+                indicatorCell.appendChild(indicatorPages);
+                indicatorRow.appendChild(indicatorCell);
+                wrapper.appendChild(indicatorRow);
+            }
         }
         return wrapper;
     },
