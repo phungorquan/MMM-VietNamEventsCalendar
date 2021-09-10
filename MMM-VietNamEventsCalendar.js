@@ -31,6 +31,7 @@ Module.register("MMM-VietNamEventsCalendar", {
         dateEndFormat: "LT(DD/MM)", // end time format
         colored: true, // Allow color google calendars from 'calendar.color'
         defaultColor: "White", // Default color of google calendars if didn't input 'calendar.color'
+        durationBeforeAlert: 5 * 60 * 1000, // 5min is default
         alertSoundFile: "ClearAnnouce.wav", // Sound files, please check in resources/ to know what we have
         alertSoundTimer: 1 * 5 * 1000, // Audio will be repeated and alert will be displayed in 5sec
         displayLocation: true,
@@ -253,8 +254,8 @@ Module.register("MMM-VietNamEventsCalendar", {
                 } else {
                     if (event.startDate >= new Date()) {
                         timeStr = moment(event.startDate, "x").calendar();
-                        // Check < 5' to pop-up alert
-                        if ((event.startDate - now) < (5 * oneMinute)) {
+                        // Request alert if duration < this.config.durationBeforeAlert
+                        if ((event.startDate - now) < (this.config.durationBeforeAlert)) {
                             for (var i = 0; i < ns_VNCal.numOfUrls; i++) {
                                 if (ns_VNCal.titleArr[i] == event.title) {
                                     existTitle = true;
