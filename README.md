@@ -1,5 +1,20 @@
 # MMM-VietNamEventsCalendar
-- This module will display your google calendar, VietNam events and your personal events
+This module are upgraded from default module `calendar` and has more powerful features:
+
+#### Google Calendar:
++ Display more than 1 google calendar
++ Can change color, and title name for each google calendar
++ Button to switch between calendars
++ Send alert notification if event will happen within a time (default 5')
++ Play alert sound if event will happen within a time (default 5s)
++ Refresh all google calendars after a time (default 1')
+
+#### Viet Nam Calendar
++ Show VietNam and international events in a month (You can change to your country events)
++ Show corresponding lunar events in a month
++ Show/hide lunar date of events
++ You can add your personal events, and they only show in current month in VietNam calendar area
++ You can change color for VietNam Calendar
 
 ## SCREENSHOT
 
@@ -12,12 +27,13 @@ git clone https://github.com/phungorquan/MMM-VietNamEventsCalendar.git
 ```
 
 ## UPDATE
-**YOU NEED TO SAVE YOUR ALL CHANGES BEFORE UPDATE**
-- Use 'gitk' to show what you changed with UI git
-- You have to download gitk with command: `sudo apt install gitk` before use gitk
+**TIP: YOU NEED TO SAVE YOUR ALL CHANGES BEFORE UPDATE**
+- Use `gitk` to show what you changed with UI tracking from git
+- You have to download `gitk` with command: `sudo apt install gitk` before use `gitk`
 
 
 **UPDATE COMMANDS**
+After you saved your all changes, then just do 2 commands below:
 ```
 git reset --hard HEAD
 git pull
@@ -75,6 +91,7 @@ To use this module, add below config into the modules array in the `config/confi
 | `dateEndFormat`      | `String`  |See [Moment.js](https://momentjs.com/docs/#/parsing/string-format/) | `"LT(DD/MM)"`  | Format to use for the date of events when using absolute dates. (version <= 2.16.0) From version 2.16.0, this option will be used to format absolute and relative dates. (e.g. DD/MM/YY to change from the default MM/DD/YYYY). |
 | `colored`            | `bool` | `true`, `false`    | `true`                    | Allow color google calendar events. |
 | `defaultColor`       | `String` | HEX, RGB or RGBA values (#efefef, rgb(242,242,242), rgba(242,242,242,0.5)) | `"White"`                   | Default color of Google Calendar events. |
+| `durationWillAlert`  | `int` | `1000` - `86400000` | `300000` (5')                | If your event come within this time, your alert will be shown |
 | `alertSoundFile`     | `String` | See in `resources` folder  | `ClearAnnouce.wav` | Sound alert files will be played when event is coming. See files in `resources` folder or download [here](https://mixkit.co/free-sound-effects/notification/) |
 | `alertSoundTimer`       | `int` | `1000` - `86400000` | `5000` (5s)               | Timer to play alert sound and show notification |
 | `displayLocation`       | `bool` | `true`, `false`    | `true`                    | Allow show location of google calendar events. |
